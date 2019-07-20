@@ -5356,7 +5356,10 @@ var author$project$Main$viewInput = F2(
 							elm$html$Html$Events$onInput(
 							author$project$Main$UpdateContent(section.title))
 						]),
-					_List_Nil),
+					_List_fromArray(
+						[
+							elm$html$Html$text(section.content)
+						])),
 					function () {
 					var limit = elm$core$Basics$floor(countPerRatio * section.ratio);
 					var diff = contentLength - limit;

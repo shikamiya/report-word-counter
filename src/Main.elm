@@ -214,7 +214,7 @@ viewInput countPerRatio section =
         [ text section.title
         , button [ Html.Events.onClick <| RemoveSection section.title] [ text "x" ]
         ]
-      , textarea [ cols 100, rows 15, placeholder section.title, onInput <| UpdateContent section.title] []
+      , textarea [ cols 100, rows 15, placeholder section.title, onInput <| UpdateContent section.title] [ text section.content ]
       , let
           limit = floor <| countPerRatio * toFloat section.ratio
           diff = contentLength - limit
