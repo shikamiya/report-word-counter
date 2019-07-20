@@ -77,6 +77,7 @@ type Msg
   = UpdateTypicalCount String
   | UpdateContent String String
   | UpdateRatio String String
+  | RemoveSection String
 
 update : Msg -> Model -> Model
 update msg model =
@@ -104,6 +105,11 @@ update msg model =
             section
         
         sections = List.map updateSection model.sections
+      in
+        { model | sections = sections }
+    RemoveSection title ->
+      let
+        sections = List.filter (\s -> s.title /= title) model.sections
       in
         { model | sections = sections }
       
@@ -134,7 +140,10 @@ viewInput countPerRatio section =
     contentLength = String.length section.content
   in
     div []
-      [ div [] [text section.title]
+      [ div []
+        [ text section.title
+        , button [ Html.Events.onClick <| RemoveSection section.title] [ text "x" ]
+        ]
       , textarea [ cols 100, rows 15, placeholder section.title, onInput <| UpdateContent section.title] []
       , let
           limit = floor <| countPerRatio * toFloat section.ratio
@@ -158,4 +167,3 @@ toStringWithSign num =
     String.append "+" <| String.fromInt num
   else
     String.fromInt num
-          

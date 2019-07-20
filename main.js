@@ -4488,6 +4488,17 @@ var elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
+var elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -4537,7 +4548,7 @@ var author$project$Main$update = F2(
 				return _Utils_update(
 					model,
 					{sections: sections});
-			default:
+			case 'UpdateRatio':
 				var title = msg.a;
 				var ratio_str = msg.b;
 				var ratio = elm$core$String$toInt(ratio_str);
@@ -4549,6 +4560,17 @@ var author$project$Main$update = F2(
 						}) : section;
 				};
 				var sections = A2(elm$core$List$map, updateSection, model.sections);
+				return _Utils_update(
+					model,
+					{sections: sections});
+			default:
+				var title = msg.a;
+				var sections = A2(
+					elm$core$List$filter,
+					function (s) {
+						return !_Utils_eq(s.title, title);
+					},
+					model.sections);
 				return _Utils_update(
 					model,
 					{sections: sections});
@@ -4638,6 +4660,9 @@ var author$project$Main$typicalCountStr = function (model) {
 		elm$core$Maybe$withDefault,
 		'',
 		A2(elm$core$Maybe$map, elm$core$String$fromInt, model.typicalCount));
+};
+var author$project$Main$RemoveSection = function (a) {
+	return {$: 'RemoveSection', a: a};
 };
 var author$project$Main$UpdateContent = F2(
 	function (a, b) {
@@ -5023,6 +5048,7 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
@@ -5051,13 +5077,29 @@ var elm$html$Html$Attributes$rows = function (n) {
 };
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
 var elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
 	return {$: 'MayStopPropagation', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
 		return A2(
@@ -5098,7 +5140,18 @@ var author$project$Main$viewInput = F2(
 					_List_Nil,
 					_List_fromArray(
 						[
-							elm$html$Html$text(section.title)
+							elm$html$Html$text(section.title),
+							A2(
+							elm$html$Html$button,
+							_List_fromArray(
+								[
+									elm$html$Html$Events$onClick(
+									author$project$Main$RemoveSection(section.title))
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('x')
+								]))
 						])),
 					A2(
 					elm$html$Html$textarea,
