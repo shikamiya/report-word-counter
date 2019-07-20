@@ -9,17 +9,14 @@
 <body>
 <div id="elm"></div>
 <script>
-var cache = localStorage.getItem("cache");
-if (cache === null) {
-	cache = "";
-}
-var app = Elm.Main.init({
-	node: document.getElementById("elm"),
-	flags: cache
-});
-app.ports.cache.subscribe( data => {
-	localStorage.setItem("cache", JSON.stringify(data));
-})
+  const localStorageKey = "cache";
+  var app = Elm.Main.init({
+    node: document.getElementById("elm"),
+    flags: localStorage.getItem(localStorageKey)
+  });
+  app.ports.cache.subscribe( data => {
+    localStorage.setItem(localStorageKey, JSON.stringify(data));
+  })
 </script>
 </body>
 </html>

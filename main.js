@@ -4833,6 +4833,25 @@ var author$project$Main$decodeModel = elm$json$Json$Decode$maybe(
 			elm$json$Json$Decode$field,
 			'sections',
 			elm$json$Json$Decode$list(author$project$Main$decodeSection))));
+var elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return elm$core$Maybe$Nothing;
+		}
+	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var elm$core$Result$withDefault = F2(
@@ -4847,9 +4866,17 @@ var elm$core$Result$withDefault = F2(
 var elm$json$Json$Decode$decodeString = _Json_runOnString;
 var author$project$Main$init = function (flags) {
 	var maybeModel = A2(
-		elm$core$Result$withDefault,
+		elm$core$Maybe$withDefault,
 		elm$core$Maybe$Nothing,
-		A2(elm$json$Json$Decode$decodeString, author$project$Main$decodeModel, flags));
+		A2(
+			elm$core$Maybe$map,
+			function (f) {
+				return A2(
+					elm$core$Result$withDefault,
+					elm$core$Maybe$Nothing,
+					A2(elm$json$Json$Decode$decodeString, author$project$Main$decodeModel, f));
+			},
+			flags));
 	if (maybeModel.$ === 'Just') {
 		var model = maybeModel.a;
 		return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
@@ -4898,15 +4925,6 @@ var author$project$Main$encodeSection = function (section) {
 				elm$json$Json$Encode$string(section.content))
 			]));
 };
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var elm$json$Json$Encode$list = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -5205,16 +5223,6 @@ var author$project$Main$typicalCountPerRatio = function (model) {
 			model.typicalCount,
 			author$project$Main$sumOfRatio(model)));
 };
-var elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return elm$core$Maybe$Nothing;
-		}
-	});
 var author$project$Main$typicalCountStr = function (model) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -5739,6 +5747,13 @@ var elm$url$Url$fromString = function (str) {
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
 var elm$browser$Browser$element = _Browser_element;
+var elm$json$Json$Decode$null = _Json_decodeNull;
 var author$project$Main$main = elm$browser$Browser$element(
 	{init: author$project$Main$init, subscriptions: author$project$Main$subscriptions, update: author$project$Main$update, view: author$project$Main$view});
-_Platform_export({'Main':{'init':author$project$Main$main(elm$json$Json$Decode$string)(0)}});}(this));
+_Platform_export({'Main':{'init':author$project$Main$main(
+	elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
+				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
+			])))(0)}});}(this));

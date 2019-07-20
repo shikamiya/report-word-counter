@@ -9,6 +9,8 @@ import Json.Decode as D
 import Dict
 import Cacher exposing (cache)
 
+-- Port Utilities
+
 encodeModel : Model -> E.Value
 encodeModel model =
   E.object
@@ -65,10 +67,10 @@ type alias Model =
   , sections : List Section
   }
 
-init : String -> (Model, Cmd msg)
+init : Maybe String -> (Model, Cmd msg)
 init flags =
   let
-    maybeModel = Result.withDefault Nothing (D.decodeString decodeModel flags)
+    maybeModel = Maybe.withDefault Nothing <| Maybe.map (\f -> Result.withDefault Nothing (D.decodeString decodeModel f)) flags
   in
     case maybeModel of
       Just model ->
