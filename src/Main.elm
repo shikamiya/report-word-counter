@@ -24,6 +24,7 @@ type alias Section =
 
 type alias Model =
   { typicalCount : Maybe Int
+  , nextTitle : String
   , sections : List Section
   }
 
@@ -31,6 +32,7 @@ init : Model
 init =
   Model 
     Nothing
+    ""
     [
       { title = "提示"
       , ratio = 0
@@ -77,6 +79,8 @@ type Msg
   = UpdateTypicalCount String
   | UpdateContent String String
   | UpdateRatio String String
+  | UpdateNextTitle String
+  | AddSection
   | RemoveSection String
 
 update : Msg -> Model -> Model
@@ -107,6 +111,13 @@ update msg model =
         sections = List.map updateSection model.sections
       in
         { model | sections = sections }
+    UpdateNextTitle title ->
+      { model | nextTitle = title }
+    AddSection ->
+      let
+        sections = List.append model.sections <| List.singleton { title = model.nextTitle, ratio = 1, content = "" }
+      in
+        { model | sections = sections, nextTitle = "" }
     RemoveSection title ->
       let
         sections = List.filter (\s -> s.title /= title) model.sections
@@ -121,6 +132,11 @@ view model =
   div []
     [ div [] [ input [type_ "number", placeholder "文字数", value <| typicalCountStr model, onInput UpdateTypicalCount] [] ]
     , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) x) model.sections
+    , div []
+      [ text "追加するセクションのタイトル："
+      , input [ type_ "text", placeholder "title", value model.nextTitle, onInput UpdateNextTitle ] []
+      , button [ Html.Events.onClick AddSection ] [ text "追加" ]
+      ]
     , div []
       [ text "総文字数："
       , text <| String.fromInt <| sumOfAllConentLength model

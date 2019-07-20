@@ -4310,9 +4310,9 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$Model = F2(
-	function (typicalCount, sections) {
-		return {sections: sections, typicalCount: typicalCount};
+var author$project$Main$Model = F3(
+	function (typicalCount, nextTitle, sections) {
+		return {nextTitle: nextTitle, sections: sections, typicalCount: typicalCount};
 	});
 var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$EQ = {$: 'EQ'};
@@ -4395,9 +4395,10 @@ var elm$core$Set$toList = function (_n0) {
 	var dict = _n0.a;
 	return elm$core$Dict$keys(dict);
 };
-var author$project$Main$init = A2(
+var author$project$Main$init = A3(
 	author$project$Main$Model,
 	elm$core$Maybe$Nothing,
+	'',
 	_List_fromArray(
 		[
 			{content: '', ratio: 0, title: '提示'},
@@ -4407,6 +4408,10 @@ var author$project$Main$init = A2(
 			{content: '', ratio: 15, title: 'まとめ'}
 		]));
 var elm$core$Basics$and = _Basics_and;
+var elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
 var elm$core$Basics$eq = _Utils_equal;
 var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$Basics$add = _Basics_add;
@@ -4488,6 +4493,14 @@ var elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
 var elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -4513,6 +4526,10 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
 var elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -4563,6 +4580,20 @@ var author$project$Main$update = F2(
 				return _Utils_update(
 					model,
 					{sections: sections});
+			case 'UpdateNextTitle':
+				var title = msg.a;
+				return _Utils_update(
+					model,
+					{nextTitle: title});
+			case 'AddSection':
+				var sections = A2(
+					elm$core$List$append,
+					model.sections,
+					elm$core$List$singleton(
+						{content: '', ratio: 1, title: model.nextTitle}));
+				return _Utils_update(
+					model,
+					{nextTitle: '', sections: sections});
 			default:
 				var title = msg.a;
 				var sections = A2(
@@ -4576,13 +4607,13 @@ var author$project$Main$update = F2(
 					{sections: sections});
 		}
 	});
+var author$project$Main$AddSection = {$: 'AddSection'};
+var author$project$Main$UpdateNextTitle = function (a) {
+	return {$: 'UpdateNextTitle', a: a};
+};
 var author$project$Main$UpdateTypicalCount = function (a) {
 	return {$: 'UpdateTypicalCount', a: a};
 };
-var elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
-	});
 var elm$core$List$sum = function (numbers) {
 	return A3(elm$core$List$foldl, elm$core$Basics$add, 0, numbers);
 };
@@ -5233,6 +5264,33 @@ var author$project$Main$view = function (model) {
 							x);
 					},
 					model.sections)),
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text('追加するセクションのタイトル：'),
+						A2(
+						elm$html$Html$input,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$type_('text'),
+								elm$html$Html$Attributes$placeholder('title'),
+								elm$html$Html$Attributes$value(model.nextTitle),
+								elm$html$Html$Events$onInput(author$project$Main$UpdateNextTitle)
+							]),
+						_List_Nil),
+						A2(
+						elm$html$Html$button,
+						_List_fromArray(
+							[
+								elm$html$Html$Events$onClick(author$project$Main$AddSection)
+							]),
+						_List_fromArray(
+							[
+								elm$html$Html$text('追加')
+							]))
+					])),
 				A2(
 				elm$html$Html$div,
 				_List_Nil,
