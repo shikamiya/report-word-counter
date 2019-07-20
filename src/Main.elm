@@ -67,15 +67,16 @@ sumOfRatio model =
   in
     if sum == 0 then Nothing else Just sum
 
-typicalCountPerRatio : Model -> Maybe Float
+typicalCountPerRatio : Model -> Float
 typicalCountPerRatio model =
-  Maybe.map2 (\x -> \y -> (toFloat x) / (toFloat y)) model.typicalCount <| sumOfRatio model
+  Maybe.withDefault 1.0 <| Maybe.map2 (\x -> \y -> (toFloat x) / (toFloat y)) model.typicalCount <| sumOfRatio model
 
 -- UPDATE
 
 type Msg
   = UpdateTypicalCount String
   | UpdateContent String String
+  | UpdateRatio String String
 
 update : Msg -> Model -> Model
 update msg model =
@@ -93,6 +94,19 @@ update msg model =
         sections = List.map updateSection model.sections
       in
       { model | sections = sections }
+    UpdateRatio title ratio_str ->
+      let
+        ratio = String.toInt ratio_str
+        updateSection section =
+          if section.title == title && ratio /= Nothing then
+            { section | ratio = Maybe.withDefault(0) ratio }
+          else
+            section
+        
+        sections = List.map updateSection model.sections
+      in
+        { model | sections = sections }
+      
 
 -- VIEW
 
@@ -114,30 +128,28 @@ view model =
     , div [] <| List.map (\x -> p [] [ text x.content ]) model.sections
     ]
 
-viewInput : Maybe Float -> Section -> Html Msg
-viewInput maybeTypicalCountPerRatio section =
+viewInput : Float -> Section -> Html Msg
+viewInput countPerRatio section =
   let
     contentLength = String.length section.content
   in
     div []
       [ div [] [text section.title]
       , textarea [ cols 100, rows 15, placeholder section.title, onInput <| UpdateContent section.title] []
-      , case maybeTypicalCountPerRatio of
-          Just countPerRatio ->
-            let
-              limit = floor <| countPerRatio * toFloat section.ratio
-              diff = contentLength - limit
-            in
-              div []
-                [ text <| String.fromInt contentLength
-                , text "/"
-                , text <| String.fromInt limit
-                , text " ("
-                , text <| toStringWithSign diff
-                , text ")"
-                ]
-          _ ->
-            div [] [ text <| String.fromInt contentLength ]  
+      , let
+          limit = floor <| countPerRatio * toFloat section.ratio
+          diff = contentLength - limit
+        in
+          div []
+            [ text <| String.fromInt contentLength
+            , text "/"
+            , text <| String.fromInt limit
+            , text " ("
+            , text <| toStringWithSign diff
+            , text ")"
+            , text " 割合："
+            , input [ type_ "number", value <| String.fromInt section.ratio, onInput <| UpdateRatio section.title ] []
+            ]
     ]
 
 toStringWithSign : Int -> String

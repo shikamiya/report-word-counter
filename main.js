@@ -4406,7 +4406,9 @@ var author$project$Main$init = A2(
 			{content: '', ratio: 35, title: '議論'},
 			{content: '', ratio: 15, title: 'まとめ'}
 		]));
+var elm$core$Basics$and = _Basics_and;
 var elm$core$Basics$eq = _Utils_equal;
+var elm$core$Basics$neq = _Utils_notEqual;
 var elm$core$Basics$add = _Basics_add;
 var elm$core$Basics$gt = _Utils_gt;
 var elm$core$List$foldl = F3(
@@ -4500,31 +4502,56 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
 var elm$core$String$toInt = _String_toInt;
 var author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'UpdateTypicalCount') {
-			var typicalCount = msg.a;
-			return _Utils_update(
-				model,
-				{
-					typicalCount: elm$core$String$toInt(typicalCount)
-				});
-		} else {
-			var title = msg.a;
-			var content = msg.b;
-			var updateSection = function (section) {
-				return _Utils_eq(section.title, title) ? _Utils_update(
-					section,
-					{content: content}) : section;
-			};
-			var sections = A2(elm$core$List$map, updateSection, model.sections);
-			return _Utils_update(
-				model,
-				{sections: sections});
+		switch (msg.$) {
+			case 'UpdateTypicalCount':
+				var typicalCount = msg.a;
+				return _Utils_update(
+					model,
+					{
+						typicalCount: elm$core$String$toInt(typicalCount)
+					});
+			case 'UpdateContent':
+				var title = msg.a;
+				var content = msg.b;
+				var updateSection = function (section) {
+					return _Utils_eq(section.title, title) ? _Utils_update(
+						section,
+						{content: content}) : section;
+				};
+				var sections = A2(elm$core$List$map, updateSection, model.sections);
+				return _Utils_update(
+					model,
+					{sections: sections});
+			default:
+				var title = msg.a;
+				var ratio_str = msg.b;
+				var ratio = elm$core$String$toInt(ratio_str);
+				var updateSection = function (section) {
+					return (_Utils_eq(section.title, title) && (!_Utils_eq(ratio, elm$core$Maybe$Nothing))) ? _Utils_update(
+						section,
+						{
+							ratio: A2(elm$core$Maybe$withDefault, 0, ratio)
+						}) : section;
+				};
+				var sections = A2(elm$core$List$map, updateSection, model.sections);
+				return _Utils_update(
+					model,
+					{sections: sections});
 		}
 	});
 var author$project$Main$UpdateTypicalCount = function (a) {
@@ -4583,15 +4610,18 @@ var elm$core$Maybe$map2 = F3(
 		}
 	});
 var author$project$Main$typicalCountPerRatio = function (model) {
-	return A3(
-		elm$core$Maybe$map2,
-		function (x) {
-			return function (y) {
-				return x / y;
-			};
-		},
-		model.typicalCount,
-		author$project$Main$sumOfRatio(model));
+	return A2(
+		elm$core$Maybe$withDefault,
+		1.0,
+		A3(
+			elm$core$Maybe$map2,
+			function (x) {
+				return function (y) {
+					return x / y;
+				};
+			},
+			model.typicalCount,
+			author$project$Main$sumOfRatio(model)));
 };
 var elm$core$Maybe$map = F2(
 	function (f, maybe) {
@@ -4603,15 +4633,6 @@ var elm$core$Maybe$map = F2(
 			return elm$core$Maybe$Nothing;
 		}
 	});
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var author$project$Main$typicalCountStr = function (model) {
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -4621,6 +4642,10 @@ var author$project$Main$typicalCountStr = function (model) {
 var author$project$Main$UpdateContent = F2(
 	function (a, b) {
 		return {$: 'UpdateContent', a: a, b: b};
+	});
+var author$project$Main$UpdateRatio = F2(
+	function (a, b) {
+		return {$: 'UpdateRatio', a: a, b: b};
 	});
 var elm$core$Basics$floor = _Basics_floor;
 var elm$core$Basics$mul = _Basics_mul;
@@ -4795,7 +4820,6 @@ var elm$json$Json$Decode$Index = F2(
 var elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var elm$core$Basics$and = _Basics_and;
 var elm$core$Basics$append = _Utils_append;
 var elm$core$Basics$or = _Basics_or;
 var elm$core$Char$toCode = _Char_toCode;
@@ -5000,6 +5024,7 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	}
 };
 var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$input = _VirtualDom_node('input');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var elm$html$Html$textarea = _VirtualDom_node('textarea');
@@ -5024,6 +5049,8 @@ var elm$html$Html$Attributes$rows = function (n) {
 		'rows',
 		elm$core$String$fromInt(n));
 };
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -5059,7 +5086,7 @@ var elm$html$Html$Events$onInput = function (tagger) {
 			A2(elm$json$Json$Decode$map, tagger, elm$html$Html$Events$targetValue)));
 };
 var author$project$Main$viewInput = F2(
-	function (maybeTypicalCountPerRatio, section) {
+	function (countPerRatio, section) {
 		var contentLength = elm$core$String$length(section.content);
 		return A2(
 			elm$html$Html$div,
@@ -5085,42 +5112,39 @@ var author$project$Main$viewInput = F2(
 						]),
 					_List_Nil),
 					function () {
-					if (maybeTypicalCountPerRatio.$ === 'Just') {
-						var countPerRatio = maybeTypicalCountPerRatio.a;
-						var limit = elm$core$Basics$floor(countPerRatio * section.ratio);
-						var diff = contentLength - limit;
-						return A2(
-							elm$html$Html$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									elm$html$Html$text(
-									elm$core$String$fromInt(contentLength)),
-									elm$html$Html$text('/'),
-									elm$html$Html$text(
-									elm$core$String$fromInt(limit)),
-									elm$html$Html$text(' ('),
-									elm$html$Html$text(
-									author$project$Main$toStringWithSign(diff)),
-									elm$html$Html$text(')')
-								]));
-					} else {
-						return A2(
-							elm$html$Html$div,
-							_List_Nil,
-							_List_fromArray(
-								[
-									elm$html$Html$text(
-									elm$core$String$fromInt(contentLength))
-								]));
-					}
+					var limit = elm$core$Basics$floor(countPerRatio * section.ratio);
+					var diff = contentLength - limit;
+					return A2(
+						elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text(
+								elm$core$String$fromInt(contentLength)),
+								elm$html$Html$text('/'),
+								elm$html$Html$text(
+								elm$core$String$fromInt(limit)),
+								elm$html$Html$text(' ('),
+								elm$html$Html$text(
+								author$project$Main$toStringWithSign(diff)),
+								elm$html$Html$text(')'),
+								elm$html$Html$text(' 割合：'),
+								A2(
+								elm$html$Html$input,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$type_('number'),
+										elm$html$Html$Attributes$value(
+										elm$core$String$fromInt(section.ratio)),
+										elm$html$Html$Events$onInput(
+										author$project$Main$UpdateRatio(section.title))
+									]),
+								_List_Nil)
+							]));
 				}()
 				]));
 	});
-var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$p = _VirtualDom_node('p');
-var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
-var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
 var author$project$Main$view = function (model) {
 	return A2(
 		elm$html$Html$div,
