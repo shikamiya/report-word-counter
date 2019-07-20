@@ -5177,13 +5177,6 @@ var author$project$Main$sumOfAllConentLength = function (model) {
 			},
 			model.sections));
 };
-var elm$core$String$append = _String_append;
-var author$project$Main$toStringWithSign = function (num) {
-	return (num > 0) ? A2(
-		elm$core$String$append,
-		'+',
-		elm$core$String$fromInt(num)) : elm$core$String$fromInt(num);
-};
 var author$project$Main$sumOfRatio = function (model) {
 	var sum = elm$core$List$sum(
 		A2(
@@ -5193,6 +5186,17 @@ var author$project$Main$sumOfRatio = function (model) {
 			},
 			model.sections));
 	return (!sum) ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(sum);
+};
+var elm$core$String$append = _String_append;
+var author$project$Main$toStringWithSign = function (num) {
+	return (num > 0) ? A2(
+		elm$core$String$append,
+		'+',
+		elm$core$String$fromInt(num)) : elm$core$String$fromInt(num);
+};
+var author$project$Main$verifyTypicalCount = function (model) {
+	var count = A2(elm$core$Maybe$withDefault, 0, model.typicalCount);
+	return (0 < count) ? elm$core$Maybe$Just(count) : elm$core$Maybe$Nothing;
 };
 var elm$core$Maybe$map2 = F3(
 	function (func, ma, mb) {
@@ -5220,14 +5224,8 @@ var author$project$Main$typicalCountPerRatio = function (model) {
 					return x / y;
 				};
 			},
-			model.typicalCount,
+			author$project$Main$verifyTypicalCount(model),
 			author$project$Main$sumOfRatio(model)));
-};
-var author$project$Main$typicalCountStr = function (model) {
-	return A2(
-		elm$core$Maybe$withDefault,
-		'',
-		A2(elm$core$Maybe$map, elm$core$String$fromInt, model.typicalCount));
 };
 var author$project$Main$RemoveSection = function (a) {
 	return {$: 'RemoveSection', a: a};
@@ -5420,7 +5418,10 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$Attributes$type_('number'),
 								elm$html$Html$Attributes$placeholder('文字数'),
 								elm$html$Html$Attributes$value(
-								author$project$Main$typicalCountStr(model)),
+								A2(
+									elm$core$Maybe$withDefault,
+									'',
+									A2(elm$core$Maybe$map, elm$core$String$fromInt, model.typicalCount))),
 								elm$html$Html$Events$onInput(author$project$Main$UpdateTypicalCount)
 							]),
 						_List_Nil)
@@ -5491,7 +5492,19 @@ var author$project$Main$view = function (model) {
 							author$project$Main$sumOfAllConentLength(model))),
 						elm$html$Html$text('/'),
 						elm$html$Html$text(
-						author$project$Main$typicalCountStr(model)),
+						A2(
+							elm$core$Maybe$withDefault,
+							A2(
+								elm$core$Maybe$withDefault,
+								'0',
+								A2(
+									elm$core$Maybe$map,
+									elm$core$String$fromInt,
+									author$project$Main$sumOfRatio(model))),
+							A2(
+								elm$core$Maybe$map,
+								elm$core$String$fromInt,
+								author$project$Main$verifyTypicalCount(model)))),
 						elm$html$Html$text('('),
 						elm$html$Html$text(
 						author$project$Main$toStringWithSign(

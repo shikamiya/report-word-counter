@@ -77,10 +77,13 @@ init flags =
         (model, Cmd.none)
       _ ->
         (Model Nothing "" [], Cmd.none)
-    
 
-typicalCountStr : Model -> String
-typicalCountStr model = Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount
+verifyTypicalCount : Model -> Maybe Int
+verifyTypicalCount model =
+  let
+    count = Maybe.withDefault 0 model.typicalCount
+  in
+    if 0 < count then Just count else Nothing
 
 sumOfAllConentLength : Model -> Int
 sumOfAllConentLength model = List.sum <| List.map (\s -> String.length s.content) model.sections
@@ -94,7 +97,7 @@ sumOfRatio model =
 
 typicalCountPerRatio : Model -> Float
 typicalCountPerRatio model =
-  Maybe.withDefault 1.0 <| Maybe.map2 (\x -> \y -> (toFloat x) / (toFloat y)) model.typicalCount <| sumOfRatio model
+  Maybe.withDefault 1.0 <| Maybe.map2 (\x -> \y -> (toFloat x) / (toFloat y)) (verifyTypicalCount model) <| sumOfRatio model
 
 -- UPDATE
 
@@ -185,7 +188,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div []
-    [ div [] [ input [type_ "number", placeholder "文字数", value <| typicalCountStr model, onInput UpdateTypicalCount] [] ]
+    [ div [] [ input [type_ "number", placeholder "文字数", value <| Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount, onInput UpdateTypicalCount] [] ]
     , div [] [ button [ Html.Events.onClick InitSections ] [ text "リセットして初期のセクションを追加する" ] ]
     , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) x) model.sections
     , div []
@@ -197,7 +200,7 @@ view model =
       [ text "総文字数："
       , text <| String.fromInt <| sumOfAllConentLength model
       , text "/"
-      , text <| typicalCountStr model
+      , text (Maybe.withDefault (Maybe.withDefault "0" <| Maybe.map String.fromInt <| sumOfRatio model) (Maybe.map String.fromInt <| verifyTypicalCount model))
       , text "("
       , text <| toStringWithSign <| (sumOfAllConentLength model) - (Maybe.withDefault 0 model.typicalCount)
       , text ")"
