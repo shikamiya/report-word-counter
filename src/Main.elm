@@ -1,18 +1,55 @@
+module Main exposing (..)
+
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
-import Json.Encode
-import Json.Decode
+import Json.Encode as E
+import Json.Decode as D
+import Dict
+import Cacher exposing (cache)
+
+encodeModel : Model -> E.Value
+encodeModel model =
+  E.object
+    [ ("typicalCount", E.int <| Maybe.withDefault 0 model.typicalCount)
+    , ("sections", E.list encodeSection model.sections)
+    ]
+
+encodeSection : Section -> E.Value
+encodeSection section =
+  E.object
+    [ ("title", E.string section.title)
+    , ("ratio", E.int section.ratio)
+    , ("content", E.string section.content)
+    ]
+
+decodeModel : D.Decoder (Maybe Model)
+decodeModel =
+  D.maybe (D.map2 (\typicalCount -> \sections -> { typicalCount = Just typicalCount, nextTitle = "", sections = sections })
+    (D.field "typicalCount" D.int)
+    (D.field "sections" (D.list decodeSection)))
+
+decodeSection : D.Decoder Section
+decodeSection =
+  D.map3 Section 
+    (D.field "title" D.string)
+    (D.field "ratio" D.int)
+    (D.field "content" D.string)
 
 -- MAIN
 
 main =
-  Browser.sandbox { 
+  Browser.element { 
     init = init, 
     update = update, 
-    view = view
+    view = view,
+    subscriptions = subscriptions
   }
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 -- MODEL
 
@@ -28,33 +65,17 @@ type alias Model =
   , sections : List Section
   }
 
-init : Model
-init =
-  Model 
-    Nothing
-    ""
-    [
-      { title = "提示"
-      , ratio = 0
-      , content = ""
-      },
-      { title = "要約"
-      , ratio = 35
-      , content = ""
-      },
-      { title = "全体"
-      , ratio = 15
-      , content = ""
-      },
-      { title = "議論"
-      , ratio = 35
-      , content = ""
-      },
-      { title = "まとめ"
-      , ratio = 15
-      , content = ""
-      }
-    ]
+init : String -> (Model, Cmd msg)
+init flags =
+  let
+    maybeModel = Result.withDefault Nothing (D.decodeString decodeModel flags)
+  in
+    case maybeModel of
+      Just model ->
+        (model, Cmd.none)
+      _ ->
+        (Model Nothing "" [], Cmd.none)
+    
 
 typicalCountStr : Model -> String
 typicalCountStr model = Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount
@@ -82,12 +103,16 @@ type Msg
   | UpdateNextTitle String
   | AddSection
   | RemoveSection String
+  | InitSections
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd msg)
 update msg model =
   case msg of
     UpdateTypicalCount typicalCount ->
-      { model | typicalCount = String.toInt typicalCount }
+      let
+        new_model = { model | typicalCount = String.toInt typicalCount }
+      in
+        (new_model, Cmd.batch [ cache <| encodeModel new_model ])
     UpdateContent title content ->
       let
         updateSection section =
@@ -97,8 +122,9 @@ update msg model =
             section
         
         sections = List.map updateSection model.sections
+        new_model = { model | sections = sections }
       in
-      { model | sections = sections }
+      (new_model, Cmd.batch [ cache <| encodeModel new_model ])
     UpdateRatio title ratio_str ->
       let
         ratio = String.toInt ratio_str
@@ -109,20 +135,47 @@ update msg model =
             section
         
         sections = List.map updateSection model.sections
+        new_model = { model | sections = sections }
       in
-        { model | sections = sections }
+        (new_model, Cmd.batch [ cache <| encodeModel new_model ])
     UpdateNextTitle title ->
-      { model | nextTitle = title }
+      ({ model | nextTitle = title }, Cmd.none)
     AddSection ->
       let
         sections = List.append model.sections <| List.singleton { title = model.nextTitle, ratio = 1, content = "" }
+        new_model = { model | sections = sections, nextTitle = "" }
       in
-        { model | sections = sections, nextTitle = "" }
+        (new_model, Cmd.batch [ cache <| encodeModel new_model ])
     RemoveSection title ->
       let
         sections = List.filter (\s -> s.title /= title) model.sections
       in
-        { model | sections = sections }
+        ({ model | sections = sections }, Cmd.none)
+    InitSections ->
+      ({ model | sections =
+        [
+          { title = "提示"
+          , ratio = 0
+          , content = ""
+          },
+          { title = "要約"
+          , ratio = 35
+          , content = ""
+          },
+          { title = "全体"
+          , ratio = 15
+          , content = ""
+          },
+          { title = "議論"
+          , ratio = 35
+          , content = ""
+          },
+          { title = "まとめ"
+          , ratio = 15
+          , content = ""
+          }
+        ]
+      }, Cmd.none)
       
 
 -- VIEW
@@ -131,6 +184,7 @@ view : Model -> Html Msg
 view model =
   div []
     [ div [] [ input [type_ "number", placeholder "文字数", value <| typicalCountStr model, onInput UpdateTypicalCount] [] ]
+    , div [] [ button [ Html.Events.onClick InitSections ] [ text "リセットして初期のセクションを追加する" ] ]
     , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) x) model.sections
     , div []
       [ text "追加するセクションのタイトル："
