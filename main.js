@@ -4835,6 +4835,14 @@ var author$project$Main$decodeModel = elm$json$Json$Decode$maybe(
 			elm$json$Json$Decode$field,
 			'sections',
 			elm$json$Json$Decode$list(author$project$Main$decodeSection))));
+var author$project$Main$defaultSection = _List_fromArray(
+	[
+		{content: '', ratio: 0, title: '提示'},
+		{content: '', ratio: 35, title: '要約'},
+		{content: '', ratio: 15, title: '全体'},
+		{content: '', ratio: 35, title: '議論'},
+		{content: '', ratio: 15, title: 'まとめ'}
+	]);
 var elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -4884,7 +4892,7 @@ var author$project$Main$init = function (flags) {
 		return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 	} else {
 		return _Utils_Tuple2(
-			A4(author$project$Main$Model, elm$core$Maybe$Nothing, '', author$project$Main$NoModal, _List_Nil),
+			A4(author$project$Main$Model, elm$core$Maybe$Nothing, '', author$project$Main$NoModal, author$project$Main$defaultSection),
 			elm$core$Platform$Cmd$none);
 	}
 };
@@ -5116,7 +5124,7 @@ var author$project$Main$update = F2(
 					elm$core$List$append,
 					model.sections,
 					elm$core$List$singleton(
-						{content: '', ratio: 1, title: model.nextTitle}));
+						{content: '', ratio: 0, title: model.nextTitle}));
 				var new_model = _Utils_update(
 					model,
 					{nextTitle: '', sections: sections});
@@ -5150,18 +5158,7 @@ var author$project$Main$update = F2(
 			case 'Reset':
 				var new_model = _Utils_update(
 					model,
-					{
-						modalKind: author$project$Main$NoModal,
-						sections: _List_fromArray(
-							[
-								{content: '', ratio: 0, title: '提示'},
-								{content: '', ratio: 35, title: '要約'},
-								{content: '', ratio: 15, title: '全体'},
-								{content: '', ratio: 35, title: '議論'},
-								{content: '', ratio: 15, title: 'まとめ'}
-							]),
-						typicalCount: elm$core$Maybe$Nothing
-					});
+					{modalKind: author$project$Main$NoModal, sections: author$project$Main$defaultSection, typicalCount: elm$core$Maybe$Nothing});
 				return _Utils_Tuple2(
 					new_model,
 					elm$core$Platform$Cmd$batch(

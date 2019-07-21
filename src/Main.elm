@@ -115,7 +115,32 @@ init flags =
             ( model, Cmd.none )
 
         _ ->
-            ( Model Nothing "" NoModal [], Cmd.none )
+            ( Model Nothing "" NoModal defaultSection, Cmd.none )
+
+
+defaultSection : List Section
+defaultSection =
+    [ { title = "提示"
+      , ratio = 0
+      , content = ""
+      }
+    , { title = "要約"
+      , ratio = 35
+      , content = ""
+      }
+    , { title = "全体"
+      , ratio = 15
+      , content = ""
+      }
+    , { title = "議論"
+      , ratio = 35
+      , content = ""
+      }
+    , { title = "まとめ"
+      , ratio = 15
+      , content = ""
+      }
+    ]
 
 
 verifyTypicalCount : Model -> Maybe Int
@@ -232,7 +257,7 @@ update msg model =
         AddSection ->
             let
                 sections =
-                    List.append model.sections <| List.singleton { title = model.nextTitle, ratio = 1, content = "" }
+                    List.append model.sections <| List.singleton { title = model.nextTitle, ratio = 0, content = "" }
 
                 new_model =
                     { model | sections = sections, nextTitle = "" }
@@ -255,28 +280,7 @@ update msg model =
                     { model
                         | typicalCount = Nothing
                         , modalKind = NoModal
-                        , sections =
-                            [ { title = "提示"
-                              , ratio = 0
-                              , content = ""
-                              }
-                            , { title = "要約"
-                              , ratio = 35
-                              , content = ""
-                              }
-                            , { title = "全体"
-                              , ratio = 15
-                              , content = ""
-                              }
-                            , { title = "議論"
-                              , ratio = 35
-                              , content = ""
-                              }
-                            , { title = "まとめ"
-                              , ratio = 15
-                              , content = ""
-                              }
-                            ]
+                        , sections = defaultSection
                     }
             in
             ( new_model, Cmd.batch [ cache <| encodeModel new_model ] )
