@@ -347,7 +347,7 @@ view model =
                     , text "/"
                     , text (Maybe.withDefault (Maybe.withDefault "0" <| Maybe.map String.fromInt <| sumOfRatio model) (Maybe.map String.fromInt <| verifyTypicalCount model))
                     , text "("
-                    , text <| toStringWithSign <| sumOfAllConentLength model - Maybe.withDefault 0 model.typicalCount
+                    , text <| toStringWithSign <| sumOfAllConentLength model - Maybe.withDefault (Maybe.withDefault 0 <| sumOfRatio model) model.typicalCount
                     , text ")"
                     ]
                 ]

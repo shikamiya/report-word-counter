@@ -8183,7 +8183,13 @@ var author$project$Main$view = function (model) {
 										elm$html$Html$text('('),
 										elm$html$Html$text(
 										author$project$Main$toStringWithSign(
-											author$project$Main$sumOfAllConentLength(model) - A2(elm$core$Maybe$withDefault, 0, model.typicalCount))),
+											author$project$Main$sumOfAllConentLength(model) - A2(
+												elm$core$Maybe$withDefault,
+												A2(
+													elm$core$Maybe$withDefault,
+													0,
+													author$project$Main$sumOfRatio(model)),
+												model.typicalCount))),
 										elm$html$Html$text(')')
 									]))
 							])),
