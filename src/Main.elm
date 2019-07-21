@@ -5,12 +5,8 @@ import Bootstrap.CDN
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 import Bootstrap.Form as Form
-import Bootstrap.Form.Checkbox as Checkbox
-import Bootstrap.Form.Fieldset as Fieldset
 import Bootstrap.Form.Input as Input
 import Bootstrap.Form.InputGroup as InputGroup
-import Bootstrap.Form.Radio as Radio
-import Bootstrap.Form.Select as Select
 import Bootstrap.Form.Textarea as Textarea
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
@@ -19,7 +15,6 @@ import Bootstrap.Modal as Modal
 import Bootstrap.Utilities.Spacing as Spacing
 import Browser
 import Cacher exposing (cache)
-import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
@@ -69,6 +64,7 @@ decodeSection =
 -- MAIN
 
 
+main : Program (Maybe String) Model Msg
 main =
     Browser.element
         { init = init
@@ -79,7 +75,7 @@ main =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -306,8 +302,7 @@ view model =
                         |> InputGroup.predecessors [ InputGroup.span [] [ text "総文字数" ] ]
                         |> InputGroup.view
                     ]
-                , Grid.col [ Col.md6, Col.lg7 ] []
-                , Grid.col [ Col.md2, Col.lg1 ] [ Button.button [ Button.outlineInfo, Button.onClick <| ShowModal ResetModal ] [ text "リセット" ] ]
+                , Grid.col [ Col.md2, Col.offsetMd6, Col.lg1, Col.offsetLg7 ] [ Button.button [ Button.outlineInfo, Button.onClick <| ShowModal ResetModal ] [ text "リセット" ] ]
                 ]
             ]
         , Modal.config IgnoreModal
@@ -341,7 +336,7 @@ view model =
                     ]
                 ]
             , Grid.row []
-                [ Grid.col [ Col.sm4 ]
+                [ Grid.col [ Col.sm, Col.attrs [ class "my-2" ] ]
                     [ text "総文字数："
                     , text <| String.fromInt <| sumOfAllConentLength model
                     , text "/"
@@ -373,10 +368,10 @@ viewInput countPerRatio modalKind section =
             |> Card.header []
                 [ Grid.containerFluid []
                     [ Grid.row []
-                        [ Grid.col [ Col.md10, Col.lg11 ]
+                        [ Grid.col [ Col.md8 ]
                             [ text section.title
                             ]
-                        , Grid.col [ Col.md2, Col.lg1 ]
+                        , Grid.col [ Col.md2, Col.offsetMd2, Col.lg1, Col.offsetLg3 ]
                             [ Button.button [ Button.small, Button.outlineDanger, Button.attrs [ Spacing.ml2 ], Button.onClick <| ShowModal <| DeleteModal section.title ] [ text "Delete" ]
                             ]
                         ]
@@ -403,8 +398,7 @@ viewInput countPerRatio modalKind section =
                                     , text <| toStringWithSign diff
                                     , text ")"
                                     ]
-                                , Grid.col [ Col.sm4 ] []
-                                , Grid.col [ Col.sm4 ]
+                                , Grid.col [ Col.sm4, Col.offsetSm4 ]
                                     [ InputGroup.config (InputGroup.number [ Input.value <| String.fromInt section.ratio, Input.onInput <| UpdateRatio section.title ])
                                         |> InputGroup.predecessors [ InputGroup.span [] [ text "割合" ] ]
                                         |> InputGroup.view

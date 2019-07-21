@@ -4890,7 +4890,7 @@ var author$project$Main$init = function (flags) {
 };
 var elm$core$Platform$Sub$batch = _Platform_batch;
 var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
-var author$project$Main$subscriptions = function (model) {
+var author$project$Main$subscriptions = function (_n0) {
 	return elm$core$Platform$Sub$none;
 };
 var elm$core$Basics$identity = function (x) {
@@ -7150,13 +7150,29 @@ var rundis$elm_bootstrap$Bootstrap$Grid$Internal$width = F2(
 			A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$Width, size, count));
 	});
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col1);
-var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col11 = {$: 'Col11'};
-var rundis$elm_bootstrap$Bootstrap$Grid$Col$lg11 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col11);
 var rundis$elm_bootstrap$Bootstrap$General$Internal$MD = {$: 'MD'};
-var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col10 = {$: 'Col10'};
-var rundis$elm_bootstrap$Bootstrap$Grid$Col$md10 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col10);
 var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col2 = {$: 'Col2'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$md2 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col2);
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col8 = {$: 'Col8'};
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$md8 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col8);
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset3 = {$: 'Offset3'};
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColOffset = function (a) {
+	return {$: 'ColOffset', a: a};
+};
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset = F2(
+	function (screenSize, offsetCount) {
+		return {offsetCount: offsetCount, screenSize: screenSize};
+	});
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$offset = F2(
+	function (size, count) {
+		return rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColOffset(
+			A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset, size, count));
+	});
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetLg3 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$offset, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset3);
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset2 = {$: 'Offset2'};
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetMd2 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$offset, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset2);
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset4 = {$: 'Offset4'};
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetSm4 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$offset, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset4);
 var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4 = {$: 'Col4'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4);
 var rundis$elm_bootstrap$Bootstrap$Grid$Internal$RowAttrs = function (a) {
@@ -7681,12 +7697,7 @@ var author$project$Main$viewInput = F3(
 																A2(
 																rundis$elm_bootstrap$Bootstrap$Grid$col,
 																_List_fromArray(
-																	[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
-																_List_Nil),
-																A2(
-																rundis$elm_bootstrap$Bootstrap$Grid$col,
-																_List_fromArray(
-																	[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+																	[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4, rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetSm4]),
 																_List_fromArray(
 																	[
 																		rundis$elm_bootstrap$Bootstrap$Form$InputGroup$view(
@@ -7735,7 +7746,7 @@ var author$project$Main$viewInput = F3(
 													A2(
 													rundis$elm_bootstrap$Bootstrap$Grid$col,
 													_List_fromArray(
-														[rundis$elm_bootstrap$Bootstrap$Grid$Col$md10, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg11]),
+														[rundis$elm_bootstrap$Bootstrap$Grid$Col$md8]),
 													_List_fromArray(
 														[
 															elm$html$Html$text(section.title)
@@ -7743,7 +7754,7 @@ var author$project$Main$viewInput = F3(
 													A2(
 													rundis$elm_bootstrap$Bootstrap$Grid$col,
 													_List_fromArray(
-														[rundis$elm_bootstrap$Bootstrap$Grid$Col$md2, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1]),
+														[rundis$elm_bootstrap$Bootstrap$Grid$Col$md2, rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetMd2, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1, rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetLg3]),
 													_List_fromArray(
 														[
 															A2(
@@ -7906,12 +7917,19 @@ var rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 				attributes),
 			children);
 	});
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs = function (a) {
+	return {$: 'ColAttrs', a: a};
+};
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs = function (attrs_) {
+	return rundis$elm_bootstrap$Bootstrap$Grid$Internal$ColAttrs(attrs_);
+};
 var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6 = {$: 'Col6'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$lg6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
-var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col7 = {$: 'Col7'};
-var rundis$elm_bootstrap$Bootstrap$Grid$Col$lg7 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col7);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$md = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
-var rundis$elm_bootstrap$Bootstrap$Grid$Col$md6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset7 = {$: 'Offset7'};
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetLg7 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$offset, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset7);
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset6 = {$: 'Offset6'};
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetMd6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$offset, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Offset6);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
 var author$project$Main$view = function (model) {
@@ -7973,12 +7991,7 @@ var author$project$Main$view = function (model) {
 								A2(
 								rundis$elm_bootstrap$Bootstrap$Grid$col,
 								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Grid$Col$md6, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg7]),
-								_List_Nil),
-								A2(
-								rundis$elm_bootstrap$Bootstrap$Grid$col,
-								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Grid$Col$md2, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1]),
+									[rundis$elm_bootstrap$Bootstrap$Grid$Col$md2, rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetMd6, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1, rundis$elm_bootstrap$Bootstrap$Grid$Col$offsetLg7]),
 								_List_fromArray(
 									[
 										A2(
@@ -8140,7 +8153,14 @@ var author$project$Main$view = function (model) {
 								A2(
 								rundis$elm_bootstrap$Bootstrap$Grid$col,
 								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+									[
+										rundis$elm_bootstrap$Bootstrap$Grid$Col$sm,
+										rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('my-2')
+											]))
+									]),
 								_List_fromArray(
 									[
 										elm$html$Html$text('総文字数：'),
