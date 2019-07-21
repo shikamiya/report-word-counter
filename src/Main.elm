@@ -174,7 +174,7 @@ type Msg
     | UpdateNextTitle String
     | AddSection
     | RemoveSection String
-    | InitSections
+    | Reset
     | ShowModal ModalKind
     | IgnoreModal
 
@@ -249,11 +249,13 @@ update msg model =
             in
             ( new_model, Cmd.batch [ cache <| encodeModel new_model ] )
 
-        InitSections ->
+        Reset ->
             let
                 new_model =
                     { model
-                        | sections =
+                        | typicalCount = Nothing
+                        , modalKind = NoModal
+                        , sections =
                             [ { title = "提示"
                               , ratio = 0
                               , content = ""
@@ -275,7 +277,6 @@ update msg model =
                               , content = ""
                               }
                             ]
-                        , modalKind = NoModal
                     }
             in
             ( new_model, Cmd.batch [ cache <| encodeModel new_model ] )
@@ -317,7 +318,7 @@ view model =
                     [ text "キャンセル" ]
                 , Button.button
                     [ Button.outlineDanger
-                    , Button.onClick InitSections
+                    , Button.onClick Reset
                     ]
                     [ text "リセット" ]
                 ]

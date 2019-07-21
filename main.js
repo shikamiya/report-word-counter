@@ -5147,7 +5147,7 @@ var author$project$Main$update = F2(
 								author$project$Cacher$cache(
 								author$project$Main$encodeModel(new_model))
 							])));
-			case 'InitSections':
+			case 'Reset':
 				var new_model = _Utils_update(
 					model,
 					{
@@ -5159,7 +5159,8 @@ var author$project$Main$update = F2(
 								{content: '', ratio: 15, title: '全体'},
 								{content: '', ratio: 35, title: '議論'},
 								{content: '', ratio: 15, title: 'まとめ'}
-							])
+							]),
+						typicalCount: elm$core$Maybe$Nothing
 					});
 				return _Utils_Tuple2(
 					new_model,
@@ -5186,7 +5187,7 @@ var author$project$Main$update = F2(
 	});
 var author$project$Main$AddSection = {$: 'AddSection'};
 var author$project$Main$IgnoreModal = {$: 'IgnoreModal'};
-var author$project$Main$InitSections = {$: 'InitSections'};
+var author$project$Main$Reset = {$: 'Reset'};
 var author$project$Main$ResetModal = {$: 'ResetModal'};
 var author$project$Main$ShowModal = function (a) {
 	return {$: 'ShowModal', a: a};
@@ -8033,7 +8034,7 @@ var author$project$Main$view = function (model) {
 							_List_fromArray(
 								[
 									rundis$elm_bootstrap$Bootstrap$Button$outlineDanger,
-									rundis$elm_bootstrap$Bootstrap$Button$onClick(author$project$Main$InitSections)
+									rundis$elm_bootstrap$Bootstrap$Button$onClick(author$project$Main$Reset)
 								]),
 							_List_fromArray(
 								[
