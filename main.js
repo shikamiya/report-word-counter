@@ -5466,6 +5466,12 @@ var rundis$elm_bootstrap$Bootstrap$Internal$Button$Size = function (a) {
 	return {$: 'Size', a: a};
 };
 var rundis$elm_bootstrap$Bootstrap$Button$small = rundis$elm_bootstrap$Bootstrap$Internal$Button$Size(rundis$elm_bootstrap$Bootstrap$General$Internal$SM);
+var rundis$elm_bootstrap$Bootstrap$Card$Internal$Attrs = function (a) {
+	return {$: 'Attrs', a: a};
+};
+var rundis$elm_bootstrap$Bootstrap$Card$attrs = function (attrs_) {
+	return rundis$elm_bootstrap$Bootstrap$Card$Internal$Attrs(attrs_);
+};
 var rundis$elm_bootstrap$Bootstrap$Card$Config = function (a) {
 	return {$: 'Config', a: a};
 };
@@ -7106,6 +7112,7 @@ var rundis$elm_bootstrap$Bootstrap$Grid$Col$md2 = A2(rundis$elm_bootstrap$Bootst
 var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4 = {$: 'Col4'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4);
 var rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2 = elm$html$Html$Attributes$class('ml-2');
+var rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4 = elm$html$Html$Attributes$class('mt-4');
 var author$project$Main$viewInput = F2(
 	function (countPerRatio, section) {
 		var contentLength = elm$core$String$length(section.content);
@@ -7246,12 +7253,16 @@ var author$project$Main$viewInput = F2(
 										]))
 								]))
 						]),
-					rundis$elm_bootstrap$Bootstrap$Card$config(_List_Nil))));
+					rundis$elm_bootstrap$Bootstrap$Card$config(
+						_List_fromArray(
+							[
+								rundis$elm_bootstrap$Bootstrap$Card$attrs(
+								_List_fromArray(
+									[rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4]))
+							])))));
 	});
 var elm$html$Html$h5 = _VirtualDom_node('h5');
-var elm$html$Html$label = _VirtualDom_node('label');
 var elm$html$Html$p = _VirtualDom_node('p');
-var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('htmlFor');
 var rundis$elm_bootstrap$Bootstrap$Internal$Button$Info = {$: 'Info'};
 var rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
 	return {$: 'Roled', a: a};
@@ -7325,7 +7336,6 @@ var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6 = {$: 'Col6'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$lg6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$md = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
-var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm2 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col2);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
 var author$project$Main$view = function (model) {
 	return A2(
@@ -7336,7 +7346,10 @@ var author$project$Main$view = function (model) {
 				rundis$elm_bootstrap$Bootstrap$CDN$stylesheet,
 				A2(
 				rundis$elm_bootstrap$Bootstrap$Grid$containerFluid,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mt-4')
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -7347,41 +7360,38 @@ var author$project$Main$view = function (model) {
 								A2(
 								rundis$elm_bootstrap$Bootstrap$Grid$col,
 								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm2]),
+									[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
 								_List_fromArray(
 									[
+										rundis$elm_bootstrap$Bootstrap$Form$InputGroup$view(
 										A2(
-										elm$html$Html$label,
-										_List_fromArray(
-											[
-												elm$html$Html$Attributes$for('typical_count')
-											]),
-										_List_fromArray(
-											[
-												elm$html$Html$text('総文字数')
-											]))
-									])),
-								A2(
-								rundis$elm_bootstrap$Bootstrap$Grid$col,
-								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm2]),
-								_List_fromArray(
-									[
-										rundis$elm_bootstrap$Bootstrap$Form$Input$number(
-										_List_fromArray(
-											[
-												rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$id('typical_count')
-													])),
-												rundis$elm_bootstrap$Bootstrap$Form$Input$value(
-												A2(
-													elm$core$Maybe$withDefault,
-													'',
-													A2(elm$core$Maybe$map, elm$core$String$fromInt, model.typicalCount))),
-												rundis$elm_bootstrap$Bootstrap$Form$Input$onInput(author$project$Main$UpdateTypicalCount)
-											]))
+											rundis$elm_bootstrap$Bootstrap$Form$InputGroup$predecessors,
+											_List_fromArray(
+												[
+													A2(
+													rundis$elm_bootstrap$Bootstrap$Form$InputGroup$span,
+													_List_Nil,
+													_List_fromArray(
+														[
+															elm$html$Html$text('総文字数')
+														]))
+												]),
+											rundis$elm_bootstrap$Bootstrap$Form$InputGroup$config(
+												rundis$elm_bootstrap$Bootstrap$Form$InputGroup$number(
+													_List_fromArray(
+														[
+															rundis$elm_bootstrap$Bootstrap$Form$Input$attrs(
+															_List_fromArray(
+																[
+																	elm$html$Html$Attributes$id('typical_count')
+																])),
+															rundis$elm_bootstrap$Bootstrap$Form$Input$value(
+															A2(
+																elm$core$Maybe$withDefault,
+																'',
+																A2(elm$core$Maybe$map, elm$core$String$fromInt, model.typicalCount))),
+															rundis$elm_bootstrap$Bootstrap$Form$Input$onInput(author$project$Main$UpdateTypicalCount)
+														])))))
 									])),
 								A2(
 								rundis$elm_bootstrap$Bootstrap$Grid$col,
@@ -7422,7 +7432,10 @@ var author$project$Main$view = function (model) {
 					model.sections)),
 				A2(
 				rundis$elm_bootstrap$Bootstrap$Grid$containerFluid,
-				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mt-4')
+					]),
 				_List_fromArray(
 					[
 						A2(

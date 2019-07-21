@@ -206,16 +206,19 @@ view : Model -> Html Msg
 view model =
   Grid.container []
     [ Bootstrap.CDN.stylesheet
-    , Grid.containerFluid []
+    , Grid.containerFluid [ class "mt-4" ]
         [ Grid.row []
-          [ Grid.col [ Col.sm2 ] [ label [ for "typical_count" ] [ text "総文字数" ] ]
-          , Grid.col [ Col.sm2 ] [ Input.number [ Input.attrs [ id "typical_count" ], Input.value <| Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount, Input.onInput UpdateTypicalCount] ]
+          [ Grid.col [ Col.sm4 ]
+            [ InputGroup.config (InputGroup.number [ Input.attrs [ id "typical_count" ], Input.value <| Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount, Input.onInput UpdateTypicalCount])
+              |> InputGroup.predecessors [ InputGroup.span [] [ text "総文字数" ] ]
+              |> InputGroup.view
+            ]
           , Grid.col [ Col.sm4 ] []
           , Grid.col [ Col.sm4 ] [ Button.button [ Button.outlineInfo, Button.onClick InitSections ] [ text "リセットして初期のセクションを追加する" ] ]
           ]
         ]
     , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) x) model.sections
-    , Grid.containerFluid []
+    , Grid.containerFluid [ class "mt-4" ]
       [ Grid.row []
         [ Grid.col [ Col.md, Col.lg6 ]
           [ Form.formInline []
@@ -253,7 +256,7 @@ viewInput countPerRatio section =
   let
     contentLength = String.length section.content
   in
-    Card.config []
+    Card.config [ Card.attrs [ Spacing.mt4 ] ]
       |> Card.header []
         [ Grid.containerFluid []
           [ Grid.row []
