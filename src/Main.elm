@@ -7,6 +7,23 @@ import Html.Events exposing (onInput)
 import Json.Encode as E
 import Json.Decode as D
 import Dict
+
+import Bootstrap.CDN
+import Bootstrap.Card as Card
+import Bootstrap.Card.Block as Block
+import Bootstrap.Grid as Grid
+import Bootstrap.Grid.Col as Col
+import Bootstrap.Form as Form
+import Bootstrap.Form.Input as Input
+import Bootstrap.Form.InputGroup as InputGroup
+import Bootstrap.Form.Select as Select
+import Bootstrap.Form.Checkbox as Checkbox
+import Bootstrap.Form.Radio as Radio
+import Bootstrap.Form.Textarea as Textarea
+import Bootstrap.Form.Fieldset as Fieldset
+import Bootstrap.Button as Button
+import Bootstrap.Utilities.Spacing as Spacing
+
 import Cacher exposing (cache)
 
 -- Port Utilities
@@ -187,26 +204,48 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ div [] [ input [type_ "number", placeholder "文字数", value <| Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount, onInput UpdateTypicalCount] [] ]
-    , div [] [ button [ Html.Events.onClick InitSections ] [ text "リセットして初期のセクションを追加する" ] ]
+  Grid.container []
+    [ Bootstrap.CDN.stylesheet
+    , Grid.containerFluid []
+        [ Grid.row []
+          [ Grid.col [ Col.sm2 ] [ label [ for "typical_count" ] [ text "総文字数" ] ]
+          , Grid.col [ Col.sm2 ] [ Input.number [ Input.attrs [ id "typical_count" ], Input.value <| Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount, Input.onInput UpdateTypicalCount] ]
+          , Grid.col [ Col.sm4 ] []
+          , Grid.col [ Col.sm4 ] [ Button.button [ Button.outlineInfo, Button.onClick InitSections ] [ text "リセットして初期のセクションを追加する" ] ]
+          ]
+        ]
     , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) x) model.sections
-    , div []
-      [ text "追加するセクションのタイトル："
-      , input [ type_ "text", placeholder "title", value model.nextTitle, onInput UpdateNextTitle ] []
-      , button [ Html.Events.onClick AddSection ] [ text "追加" ]
+    , Grid.containerFluid []
+      [ Grid.row []
+        [ Grid.col [ Col.sm6 ]
+          [ Form.formInline []
+            [ InputGroup.config
+              (InputGroup.text [ Input.attrs [ id "next_title" ], Input.value model.nextTitle, Input.onInput UpdateNextTitle ])
+              |> InputGroup.predecessors [ InputGroup.span [] [ text "追加するセクションのタイトル" ] ]
+              |> InputGroup.successors [ InputGroup.button [ Button.info, Button.onClick AddSection ] [ text "追加"] ]
+              |> InputGroup.view
+            ]
+          ]
+        ]
+      , Grid.row []
+          [ Grid.col [ Col.sm4 ]
+            [ text "総文字数："
+            , text <| String.fromInt <| sumOfAllConentLength model
+            , text "/"
+            , text (Maybe.withDefault (Maybe.withDefault "0" <| Maybe.map String.fromInt <| sumOfRatio model) (Maybe.map String.fromInt <| verifyTypicalCount model))
+            , text "("
+            , text <| toStringWithSign <| (sumOfAllConentLength model) - (Maybe.withDefault 0 model.typicalCount)
+            , text ")"
+            ]
+          ]
+        , Grid.row []
+          [ Grid.col [ Col.sm6 ]
+            [ h5 [] [ text "コピー用" ] ]
+          ]
+        , Grid.row []
+          [ Grid.col [ Col.sm ] <| List.map (\x -> p [] [ text x.content ]) model.sections
+          ]
       ]
-    , div []
-      [ text "総文字数："
-      , text <| String.fromInt <| sumOfAllConentLength model
-      , text "/"
-      , text (Maybe.withDefault (Maybe.withDefault "0" <| Maybe.map String.fromInt <| sumOfRatio model) (Maybe.map String.fromInt <| verifyTypicalCount model))
-      , text "("
-      , text <| toStringWithSign <| (sumOfAllConentLength model) - (Maybe.withDefault 0 model.typicalCount)
-      , text ")"
-      ]
-    , div [] [ text "コピー用" ]
-    , div [] <| List.map (\x -> p [] [ text x.content ]) model.sections
     ]
 
 viewInput : Float -> Section -> Html Msg
@@ -214,27 +253,48 @@ viewInput countPerRatio section =
   let
     contentLength = String.length section.content
   in
-    div []
-      [ div []
-        [ text section.title
-        , button [ Html.Events.onClick <| RemoveSection section.title] [ text "x" ]
-        ]
-      , textarea [ cols 100, rows 15, placeholder section.title, onInput <| UpdateContent section.title] [ text section.content ]
-      , let
-          limit = floor <| countPerRatio * toFloat section.ratio
-          diff = contentLength - limit
-        in
-          div []
-            [ text <| String.fromInt contentLength
-            , text "/"
-            , text <| String.fromInt limit
-            , text " ("
-            , text <| toStringWithSign diff
-            , text ")"
-            , text " 割合："
-            , input [ type_ "number", value <| String.fromInt section.ratio, onInput <| UpdateRatio section.title ] []
+    Card.config []
+      |> Card.header []
+        [ Grid.containerFluid []
+          [ Grid.row []
+            [ Grid.col [ Col.sm11 ]
+              [ text section.title
+              ]
+            , Grid.col [ Col.sm1 ]
+              [ Button.button [ Button.small, Button.outlineDanger, Button.attrs [ Spacing.ml2 ], Button.onClick <| RemoveSection section.title] [ text "Delete" ]
+              ]
             ]
-    ]
+          ]
+        ]
+      |> Card.block []
+        [
+          Block.custom <| Form.form []
+            [ Textarea.textarea [ Textarea.rows 15, Textarea.onInput <| UpdateContent section.title, Textarea.value section.content ]
+            , let
+                limit = floor <| countPerRatio * toFloat section.ratio
+                diff = contentLength - limit
+              in
+                Grid.containerFluid []
+                  [ Grid.row []
+                    [ Grid.col [ Col.sm4]
+                      [ text <| String.fromInt contentLength
+                      , text "/"
+                      , text <| String.fromInt limit
+                      , text " ("
+                      , text <| toStringWithSign diff
+                      , text ")"
+                      ]
+                    , Grid.col [ Col.sm4 ] []
+                    , Grid.col [ Col.sm4 ]
+                      [ InputGroup.config (InputGroup.number [ Input.value <| String.fromInt section.ratio, Input.onInput <| UpdateRatio section.title ])
+                        |> InputGroup.predecessors [ InputGroup.span [] [ text "割合" ] ]
+                        |> InputGroup.view
+                      ]
+                    ]
+                  ]
+            ]
+        ]
+      |> Card.view
 
 toStringWithSign : Int -> String
 toStringWithSign num =
