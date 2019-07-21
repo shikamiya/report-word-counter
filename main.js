@@ -4310,10 +4310,11 @@ function _Browser_load(url)
 		}
 	}));
 }
-var author$project$Main$Model = F3(
-	function (typicalCount, nextTitle, sections) {
-		return {nextTitle: nextTitle, sections: sections, typicalCount: typicalCount};
+var author$project$Main$Model = F4(
+	function (typicalCount, nextTitle, modalKind, sections) {
+		return {modalKind: modalKind, nextTitle: nextTitle, sections: sections, typicalCount: typicalCount};
 	});
+var author$project$Main$NoModal = {$: 'NoModal'};
 var author$project$Main$Section = F3(
 	function (title, ratio, content) {
 		return {content: content, ratio: ratio, title: title};
@@ -4822,6 +4823,7 @@ var author$project$Main$decodeModel = elm$json$Json$Decode$maybe(
 		function (typicalCount) {
 			return function (sections) {
 				return {
+					modalKind: author$project$Main$NoModal,
 					nextTitle: '',
 					sections: sections,
 					typicalCount: elm$core$Maybe$Just(typicalCount)
@@ -4882,7 +4884,7 @@ var author$project$Main$init = function (flags) {
 		return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 	} else {
 		return _Utils_Tuple2(
-			A3(author$project$Main$Model, elm$core$Maybe$Nothing, '', _List_Nil),
+			A4(author$project$Main$Model, elm$core$Maybe$Nothing, '', author$project$Main$NoModal, _List_Nil),
 			elm$core$Platform$Cmd$none);
 	}
 };
@@ -5134,36 +5136,75 @@ var author$project$Main$update = F2(
 						return !_Utils_eq(s.title, title);
 					},
 					model.sections);
+				var new_model = _Utils_update(
+					model,
+					{modalKind: author$project$Main$NoModal, sections: sections});
+				return _Utils_Tuple2(
+					new_model,
+					elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								author$project$Cacher$cache(
+								author$project$Main$encodeModel(new_model))
+							])));
+			case 'InitSections':
+				var new_model = _Utils_update(
+					model,
+					{
+						modalKind: author$project$Main$NoModal,
+						sections: _List_fromArray(
+							[
+								{content: '', ratio: 0, title: '提示'},
+								{content: '', ratio: 35, title: '要約'},
+								{content: '', ratio: 15, title: '全体'},
+								{content: '', ratio: 35, title: '議論'},
+								{content: '', ratio: 15, title: 'まとめ'}
+							])
+					});
+				return _Utils_Tuple2(
+					new_model,
+					elm$core$Platform$Cmd$batch(
+						_List_fromArray(
+							[
+								author$project$Cacher$cache(
+								author$project$Main$encodeModel(new_model))
+							])));
+			case 'ShowModal':
+				var kind = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{sections: sections}),
+						{modalKind: kind}),
 					elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{
-							sections: _List_fromArray(
-								[
-									{content: '', ratio: 0, title: '提示'},
-									{content: '', ratio: 35, title: '要約'},
-									{content: '', ratio: 15, title: '全体'},
-									{content: '', ratio: 35, title: '議論'},
-									{content: '', ratio: 15, title: 'まとめ'}
-								])
-						}),
+						{modalKind: author$project$Main$NoModal}),
 					elm$core$Platform$Cmd$none);
 		}
 	});
 var author$project$Main$AddSection = {$: 'AddSection'};
+var author$project$Main$IgnoreModal = {$: 'IgnoreModal'};
 var author$project$Main$InitSections = {$: 'InitSections'};
+var author$project$Main$ResetModal = {$: 'ResetModal'};
+var author$project$Main$ShowModal = function (a) {
+	return {$: 'ShowModal', a: a};
+};
 var author$project$Main$UpdateNextTitle = function (a) {
 	return {$: 'UpdateNextTitle', a: a};
 };
 var author$project$Main$UpdateTypicalCount = function (a) {
 	return {$: 'UpdateTypicalCount', a: a};
 };
+var rundis$elm_bootstrap$Bootstrap$Modal$Hide = {$: 'Hide'};
+var rundis$elm_bootstrap$Bootstrap$Modal$hidden = rundis$elm_bootstrap$Bootstrap$Modal$Hide;
+var rundis$elm_bootstrap$Bootstrap$Modal$Show = {$: 'Show'};
+var rundis$elm_bootstrap$Bootstrap$Modal$shown = rundis$elm_bootstrap$Bootstrap$Modal$Show;
+var author$project$Main$getModalVisibility = F2(
+	function (target, current) {
+		return _Utils_eq(target, current) ? rundis$elm_bootstrap$Bootstrap$Modal$shown : rundis$elm_bootstrap$Bootstrap$Modal$hidden;
+	});
 var elm$core$List$sum = function (numbers) {
 	return A3(elm$core$List$foldl, elm$core$Basics$add, 0, numbers);
 };
@@ -5227,6 +5268,9 @@ var author$project$Main$typicalCountPerRatio = function (model) {
 			author$project$Main$verifyTypicalCount(model),
 			author$project$Main$sumOfRatio(model)));
 };
+var author$project$Main$DeleteModal = function (a) {
+	return {$: 'DeleteModal', a: a};
+};
 var author$project$Main$RemoveSection = function (a) {
 	return {$: 'RemoveSection', a: a};
 };
@@ -5250,6 +5294,8 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$p = _VirtualDom_node('p');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var rundis$elm_bootstrap$Bootstrap$Internal$Button$Attrs = function (a) {
@@ -5461,6 +5507,9 @@ var rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined = function (a) {
 };
 var rundis$elm_bootstrap$Bootstrap$Button$outlineDanger = rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
 	rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined(rundis$elm_bootstrap$Bootstrap$Internal$Button$Danger));
+var rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary = {$: 'Primary'};
+var rundis$elm_bootstrap$Bootstrap$Button$outlinePrimary = rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
+	rundis$elm_bootstrap$Bootstrap$Internal$Button$Outlined(rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary));
 var rundis$elm_bootstrap$Bootstrap$General$Internal$SM = {$: 'SM'};
 var rundis$elm_bootstrap$Bootstrap$Internal$Button$Size = function (a) {
 	return {$: 'Size', a: a};
@@ -5475,7 +5524,6 @@ var rundis$elm_bootstrap$Bootstrap$Card$attrs = function (attrs_) {
 var rundis$elm_bootstrap$Bootstrap$Card$Config = function (a) {
 	return {$: 'Config', a: a};
 };
-var elm$html$Html$div = _VirtualDom_node('div');
 var rundis$elm_bootstrap$Bootstrap$Card$Internal$CardBlock = function (a) {
 	return {$: 'CardBlock', a: a};
 };
@@ -7111,158 +7159,671 @@ var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col2 = {$: 'Col2'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$md2 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col2);
 var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4 = {$: 'Col4'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col4);
-var rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2 = elm$html$Html$Attributes$class('ml-2');
-var rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4 = elm$html$Html$Attributes$class('mt-4');
-var author$project$Main$viewInput = F2(
-	function (countPerRatio, section) {
-		var contentLength = elm$core$String$length(section.content);
-		return rundis$elm_bootstrap$Bootstrap$Card$view(
-			A3(
-				rundis$elm_bootstrap$Bootstrap$Card$block,
-				_List_Nil,
-				_List_fromArray(
-					[
-						rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
-						A2(
-							rundis$elm_bootstrap$Bootstrap$Form$form,
-							_List_Nil,
+var rundis$elm_bootstrap$Bootstrap$Modal$Body = function (a) {
+	return {$: 'Body', a: a};
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$Config = function (a) {
+	return {$: 'Config', a: a};
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$body = F3(
+	function (attributes, children, _n0) {
+		var conf = _n0.a;
+		return rundis$elm_bootstrap$Bootstrap$Modal$Config(
+			_Utils_update(
+				conf,
+				{
+					body: elm$core$Maybe$Just(
+						rundis$elm_bootstrap$Bootstrap$Modal$Body(
+							{attributes: attributes, children: children}))
+				}));
+	});
+var rundis$elm_bootstrap$Bootstrap$Modal$config = function (closeMsg) {
+	return rundis$elm_bootstrap$Bootstrap$Modal$Config(
+		{
+			body: elm$core$Maybe$Nothing,
+			closeMsg: closeMsg,
+			footer: elm$core$Maybe$Nothing,
+			header: elm$core$Maybe$Nothing,
+			options: {centered: true, hideOnBackdropClick: true, modalSize: elm$core$Maybe$Nothing},
+			withAnimation: elm$core$Maybe$Nothing
+		});
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$Footer = function (a) {
+	return {$: 'Footer', a: a};
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$footer = F3(
+	function (attributes, children, _n0) {
+		var conf = _n0.a;
+		return rundis$elm_bootstrap$Bootstrap$Modal$Config(
+			_Utils_update(
+				conf,
+				{
+					footer: elm$core$Maybe$Just(
+						rundis$elm_bootstrap$Bootstrap$Modal$Footer(
+							{attributes: attributes, children: children}))
+				}));
+	});
+var elm$html$Html$h3 = _VirtualDom_node('h3');
+var rundis$elm_bootstrap$Bootstrap$Modal$Header = function (a) {
+	return {$: 'Header', a: a};
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$header = F3(
+	function (attributes, children, _n0) {
+		var conf = _n0.a;
+		return rundis$elm_bootstrap$Bootstrap$Modal$Config(
+			_Utils_update(
+				conf,
+				{
+					header: elm$core$Maybe$Just(
+						rundis$elm_bootstrap$Bootstrap$Modal$Header(
+							{attributes: attributes, children: children}))
+				}));
+	});
+var rundis$elm_bootstrap$Bootstrap$Modal$titledHeader = F3(
+	function (itemFn, attributes, children) {
+		return A2(
+			rundis$elm_bootstrap$Bootstrap$Modal$header,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					itemFn,
+					A2(
+						elm$core$List$cons,
+						elm$html$Html$Attributes$class('modal-title'),
+						attributes),
+					children)
+				]));
+	});
+var rundis$elm_bootstrap$Bootstrap$Modal$h3 = rundis$elm_bootstrap$Bootstrap$Modal$titledHeader(elm$html$Html$h3);
+var rundis$elm_bootstrap$Bootstrap$Modal$hideOnBackdropClick = F2(
+	function (hide, _n0) {
+		var conf = _n0.a;
+		var options = conf.options;
+		return rundis$elm_bootstrap$Bootstrap$Modal$Config(
+			_Utils_update(
+				conf,
+				{
+					options: _Utils_update(
+						options,
+						{hideOnBackdropClick: hide})
+				}));
+	});
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var elm$html$Html$Attributes$attribute = elm$virtual_dom$VirtualDom$attribute;
+var elm$html$Html$Attributes$tabindex = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'tabIndex',
+		elm$core$String$fromInt(n));
+};
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$StartClose = {$: 'StartClose'};
+var rundis$elm_bootstrap$Bootstrap$Modal$getCloseMsg = function (config_) {
+	var _n0 = config_.withAnimation;
+	if (_n0.$ === 'Just') {
+		var animationMsg = _n0.a;
+		return animationMsg(rundis$elm_bootstrap$Bootstrap$Modal$StartClose);
+	} else {
+		return config_.closeMsg;
+	}
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$isFade = function (conf) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		false,
+		A2(
+			elm$core$Maybe$map,
+			function (_n0) {
+				return true;
+			},
+			conf.withAnimation));
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$backdrop = F2(
+	function (visibility, conf) {
+		var attributes = function () {
+			switch (visibility.$) {
+				case 'Show':
+					return _Utils_ap(
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$classList(
+								_List_fromArray(
+									[
+										_Utils_Tuple2('modal-backdrop', true),
+										_Utils_Tuple2(
+										'fade',
+										rundis$elm_bootstrap$Bootstrap$Modal$isFade(conf)),
+										_Utils_Tuple2('show', true)
+									]))
+							]),
+						conf.options.hideOnBackdropClick ? _List_fromArray(
+							[
+								elm$html$Html$Events$onClick(
+								rundis$elm_bootstrap$Bootstrap$Modal$getCloseMsg(conf))
+							]) : _List_Nil);
+				case 'StartClose':
+					return _List_fromArray(
+						[
+							elm$html$Html$Attributes$classList(
 							_List_fromArray(
 								[
-									rundis$elm_bootstrap$Bootstrap$Form$Textarea$textarea(
+									_Utils_Tuple2('modal-backdrop', true),
+									_Utils_Tuple2('fade', true),
+									_Utils_Tuple2('show', true)
+								]))
+						]);
+				case 'FadeClose':
+					return _List_fromArray(
+						[
+							elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2('modal-backdrop', true),
+									_Utils_Tuple2('fade', true),
+									_Utils_Tuple2('show', false)
+								]))
+						]);
+				default:
+					return _List_fromArray(
+						[
+							elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2('modal-backdrop', false),
+									_Utils_Tuple2(
+									'fade',
+									rundis$elm_bootstrap$Bootstrap$Modal$isFade(conf)),
+									_Utils_Tuple2('show', false)
+								]))
+						]);
+			}
+		}();
+		return _List_fromArray(
+			[
+				A2(elm$html$Html$div, attributes, _List_Nil)
+			]);
+	});
+var elm$core$String$contains = _String_contains;
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$fail = _Json_fail;
+var rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$className = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['className']),
+	elm$json$Json$Decode$string);
+var rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$target = function (decoder) {
+	return A2(elm$json$Json$Decode$field, 'target', decoder);
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$containerClickDecoder = function (closeMsg) {
+	return A2(
+		elm$json$Json$Decode$andThen,
+		function (c) {
+			return A2(elm$core$String$contains, 'elm-bootstrap-modal', c) ? elm$json$Json$Decode$succeed(closeMsg) : elm$json$Json$Decode$fail('ignoring');
+		},
+		rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$target(rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$className));
+};
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
+var rundis$elm_bootstrap$Bootstrap$Modal$display = F2(
+	function (visibility, conf) {
+		switch (visibility.$) {
+			case 'Show':
+				return _List_fromArray(
+					[
+						A2(elm$html$Html$Attributes$style, 'pointer-events', 'none'),
+						A2(elm$html$Html$Attributes$style, 'display', 'block'),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('modal', true),
+								_Utils_Tuple2(
+								'fade',
+								rundis$elm_bootstrap$Bootstrap$Modal$isFade(conf)),
+								_Utils_Tuple2('show', true)
+							]))
+					]);
+			case 'StartClose':
+				return _List_fromArray(
+					[
+						A2(elm$html$Html$Attributes$style, 'pointer-events', 'none'),
+						A2(elm$html$Html$Attributes$style, 'display', 'block'),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('modal', true),
+								_Utils_Tuple2('fade', true),
+								_Utils_Tuple2('show', true)
+							]))
+					]);
+			case 'FadeClose':
+				return _List_fromArray(
+					[
+						A2(elm$html$Html$Attributes$style, 'pointer-events', 'none'),
+						A2(elm$html$Html$Attributes$style, 'display', 'block'),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('modal', true),
+								_Utils_Tuple2('fade', true),
+								_Utils_Tuple2('show', false)
+							])),
+						A2(
+						elm$html$Html$Events$on,
+						'transitionend',
+						elm$json$Json$Decode$succeed(conf.closeMsg))
+					]);
+			default:
+				return _List_fromArray(
+					[
+						A2(elm$html$Html$Attributes$style, 'height', '0px'),
+						A2(elm$html$Html$Attributes$style, 'display', 'block'),
+						elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('modal', true),
+								_Utils_Tuple2(
+								'fade',
+								rundis$elm_bootstrap$Bootstrap$Modal$isFade(conf)),
+								_Utils_Tuple2('show', false)
+							]))
+					]);
+		}
+	});
+var rundis$elm_bootstrap$Bootstrap$Modal$modalClass = function (size) {
+	var _n0 = rundis$elm_bootstrap$Bootstrap$General$Internal$screenSizeOption(size);
+	if (_n0.$ === 'Just') {
+		var s = _n0.a;
+		return _List_fromArray(
+			[
+				elm$html$Html$Attributes$class('modal-' + s)
+			]);
+	} else {
+		return _List_Nil;
+	}
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$modalAttributes = function (options) {
+	return _Utils_ap(
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2('modal-dialog', true),
+						_Utils_Tuple2('modal-dialog-centered', options.centered)
+					])),
+				A2(elm$html$Html$Attributes$style, 'pointer-events', 'auto')
+			]),
+		A2(
+			elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2(elm$core$Maybe$map, rundis$elm_bootstrap$Bootstrap$Modal$modalClass, options.modalSize)));
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$renderBody = function (maybeBody) {
+	if (maybeBody.$ === 'Just') {
+		var cfg = maybeBody.a.a;
+		return elm$core$Maybe$Just(
+			A2(
+				elm$html$Html$div,
+				A2(
+					elm$core$List$cons,
+					elm$html$Html$Attributes$class('modal-body'),
+					cfg.attributes),
+				cfg.children));
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$renderFooter = function (maybeFooter) {
+	if (maybeFooter.$ === 'Just') {
+		var cfg = maybeFooter.a.a;
+		return elm$core$Maybe$Just(
+			A2(
+				elm$html$Html$div,
+				A2(
+					elm$core$List$cons,
+					elm$html$Html$Attributes$class('modal-footer'),
+					cfg.attributes),
+				cfg.children));
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$closeButton = function (closeMsg) {
+	return A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('close'),
+				elm$html$Html$Events$onClick(closeMsg)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('×')
+			]));
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$renderHeader = function (conf_) {
+	var _n0 = conf_.header;
+	if (_n0.$ === 'Just') {
+		var cfg = _n0.a.a;
+		return elm$core$Maybe$Just(
+			A2(
+				elm$html$Html$div,
+				A2(
+					elm$core$List$cons,
+					elm$html$Html$Attributes$class('modal-header'),
+					cfg.attributes),
+				_Utils_ap(
+					cfg.children,
+					_List_fromArray(
+						[
+							rundis$elm_bootstrap$Bootstrap$Modal$closeButton(
+							rundis$elm_bootstrap$Bootstrap$Modal$getCloseMsg(conf_))
+						]))));
+	} else {
+		return elm$core$Maybe$Nothing;
+	}
+};
+var rundis$elm_bootstrap$Bootstrap$Modal$view = F2(
+	function (visibility, _n0) {
+		var conf = _n0.a;
+		return A2(
+			elm$html$Html$div,
+			_List_Nil,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$div,
+						_Utils_ap(
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$tabindex(-1)
+								]),
+							A2(rundis$elm_bootstrap$Bootstrap$Modal$display, visibility, conf)),
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$div,
+								_Utils_ap(
 									_List_fromArray(
 										[
-											rundis$elm_bootstrap$Bootstrap$Form$Textarea$rows(15),
-											rundis$elm_bootstrap$Bootstrap$Form$Textarea$onInput(
-											author$project$Main$UpdateContent(section.title)),
-											rundis$elm_bootstrap$Bootstrap$Form$Textarea$value(section.content)
-										])),
-									function () {
-									var limit = elm$core$Basics$floor(countPerRatio * section.ratio);
-									var diff = contentLength - limit;
-									return A2(
-										rundis$elm_bootstrap$Bootstrap$Grid$containerFluid,
-										_List_Nil,
-										_List_fromArray(
+											A2(elm$html$Html$Attributes$attribute, 'role', 'document'),
+											elm$html$Html$Attributes$class('elm-bootstrap-modal')
+										]),
+									_Utils_ap(
+										rundis$elm_bootstrap$Bootstrap$Modal$modalAttributes(conf.options),
+										conf.options.hideOnBackdropClick ? _List_fromArray(
 											[
 												A2(
-												rundis$elm_bootstrap$Bootstrap$Grid$row,
+												elm$html$Html$Events$on,
+												'click',
+												rundis$elm_bootstrap$Bootstrap$Modal$containerClickDecoder(conf.closeMsg))
+											]) : _List_Nil)),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$div,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('modal-content')
+											]),
+										A2(
+											elm$core$List$filterMap,
+											elm$core$Basics$identity,
+											_List_fromArray(
+												[
+													rundis$elm_bootstrap$Bootstrap$Modal$renderHeader(conf),
+													rundis$elm_bootstrap$Bootstrap$Modal$renderBody(conf.body),
+													rundis$elm_bootstrap$Bootstrap$Modal$renderFooter(conf.footer)
+												])))
+									]))
+							]))
+					]),
+				A2(rundis$elm_bootstrap$Bootstrap$Modal$backdrop, visibility, conf)));
+	});
+var rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2 = elm$html$Html$Attributes$class('ml-2');
+var rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4 = elm$html$Html$Attributes$class('mt-4');
+var author$project$Main$viewInput = F3(
+	function (countPerRatio, modalKind, section) {
+		var contentLength = elm$core$String$length(section.content);
+		return A2(
+			elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					rundis$elm_bootstrap$Bootstrap$Card$view(
+					A3(
+						rundis$elm_bootstrap$Bootstrap$Card$block,
+						_List_Nil,
+						_List_fromArray(
+							[
+								rundis$elm_bootstrap$Bootstrap$Card$Block$custom(
+								A2(
+									rundis$elm_bootstrap$Bootstrap$Form$form,
+									_List_Nil,
+									_List_fromArray(
+										[
+											rundis$elm_bootstrap$Bootstrap$Form$Textarea$textarea(
+											_List_fromArray(
+												[
+													rundis$elm_bootstrap$Bootstrap$Form$Textarea$rows(15),
+													rundis$elm_bootstrap$Bootstrap$Form$Textarea$onInput(
+													author$project$Main$UpdateContent(section.title)),
+													rundis$elm_bootstrap$Bootstrap$Form$Textarea$value(section.content)
+												])),
+											function () {
+											var limit = elm$core$Basics$floor(countPerRatio * section.ratio);
+											var diff = contentLength - limit;
+											return A2(
+												rundis$elm_bootstrap$Bootstrap$Grid$containerFluid,
 												_List_Nil,
 												_List_fromArray(
 													[
 														A2(
-														rundis$elm_bootstrap$Bootstrap$Grid$col,
-														_List_fromArray(
-															[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
-														_List_fromArray(
-															[
-																elm$html$Html$text(
-																elm$core$String$fromInt(contentLength)),
-																elm$html$Html$text('/'),
-																elm$html$Html$text(
-																elm$core$String$fromInt(limit)),
-																elm$html$Html$text(' ('),
-																elm$html$Html$text(
-																author$project$Main$toStringWithSign(diff)),
-																elm$html$Html$text(')')
-															])),
-														A2(
-														rundis$elm_bootstrap$Bootstrap$Grid$col,
-														_List_fromArray(
-															[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
-														_List_Nil),
-														A2(
-														rundis$elm_bootstrap$Bootstrap$Grid$col,
-														_List_fromArray(
-															[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+														rundis$elm_bootstrap$Bootstrap$Grid$row,
+														_List_Nil,
 														_List_fromArray(
 															[
-																rundis$elm_bootstrap$Bootstrap$Form$InputGroup$view(
 																A2(
-																	rundis$elm_bootstrap$Bootstrap$Form$InputGroup$predecessors,
-																	_List_fromArray(
-																		[
-																			A2(
-																			rundis$elm_bootstrap$Bootstrap$Form$InputGroup$span,
-																			_List_Nil,
+																rundis$elm_bootstrap$Bootstrap$Grid$col,
+																_List_fromArray(
+																	[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+																_List_fromArray(
+																	[
+																		elm$html$Html$text(
+																		elm$core$String$fromInt(contentLength)),
+																		elm$html$Html$text('/'),
+																		elm$html$Html$text(
+																		elm$core$String$fromInt(limit)),
+																		elm$html$Html$text(' ('),
+																		elm$html$Html$text(
+																		author$project$Main$toStringWithSign(diff)),
+																		elm$html$Html$text(')')
+																	])),
+																A2(
+																rundis$elm_bootstrap$Bootstrap$Grid$col,
+																_List_fromArray(
+																	[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+																_List_Nil),
+																A2(
+																rundis$elm_bootstrap$Bootstrap$Grid$col,
+																_List_fromArray(
+																	[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+																_List_fromArray(
+																	[
+																		rundis$elm_bootstrap$Bootstrap$Form$InputGroup$view(
+																		A2(
+																			rundis$elm_bootstrap$Bootstrap$Form$InputGroup$predecessors,
 																			_List_fromArray(
 																				[
-																					elm$html$Html$text('割合')
-																				]))
-																		]),
-																	rundis$elm_bootstrap$Bootstrap$Form$InputGroup$config(
-																		rundis$elm_bootstrap$Bootstrap$Form$InputGroup$number(
-																			_List_fromArray(
-																				[
-																					rundis$elm_bootstrap$Bootstrap$Form$Input$value(
-																					elm$core$String$fromInt(section.ratio)),
-																					rundis$elm_bootstrap$Bootstrap$Form$Input$onInput(
-																					author$project$Main$UpdateRatio(section.title))
-																				])))))
+																					A2(
+																					rundis$elm_bootstrap$Bootstrap$Form$InputGroup$span,
+																					_List_Nil,
+																					_List_fromArray(
+																						[
+																							elm$html$Html$text('割合')
+																						]))
+																				]),
+																			rundis$elm_bootstrap$Bootstrap$Form$InputGroup$config(
+																				rundis$elm_bootstrap$Bootstrap$Form$InputGroup$number(
+																					_List_fromArray(
+																						[
+																							rundis$elm_bootstrap$Bootstrap$Form$Input$value(
+																							elm$core$String$fromInt(section.ratio)),
+																							rundis$elm_bootstrap$Bootstrap$Form$Input$onInput(
+																							author$project$Main$UpdateRatio(section.title))
+																						])))))
+																	]))
 															]))
-													]))
-											]));
-								}()
-								])))
-					]),
-				A3(
-					rundis$elm_bootstrap$Bootstrap$Card$header,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							rundis$elm_bootstrap$Bootstrap$Grid$containerFluid,
+													]));
+										}()
+										])))
+							]),
+						A3(
+							rundis$elm_bootstrap$Bootstrap$Card$header,
 							_List_Nil,
 							_List_fromArray(
 								[
 									A2(
-									rundis$elm_bootstrap$Bootstrap$Grid$row,
+									rundis$elm_bootstrap$Bootstrap$Grid$containerFluid,
 									_List_Nil,
 									_List_fromArray(
 										[
 											A2(
-											rundis$elm_bootstrap$Bootstrap$Grid$col,
-											_List_fromArray(
-												[rundis$elm_bootstrap$Bootstrap$Grid$Col$md10, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg11]),
-											_List_fromArray(
-												[
-													elm$html$Html$text(section.title)
-												])),
-											A2(
-											rundis$elm_bootstrap$Bootstrap$Grid$col,
-											_List_fromArray(
-												[rundis$elm_bootstrap$Bootstrap$Grid$Col$md2, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1]),
+											rundis$elm_bootstrap$Bootstrap$Grid$row,
+											_List_Nil,
 											_List_fromArray(
 												[
 													A2(
-													rundis$elm_bootstrap$Bootstrap$Button$button,
+													rundis$elm_bootstrap$Bootstrap$Grid$col,
+													_List_fromArray(
+														[rundis$elm_bootstrap$Bootstrap$Grid$Col$md10, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg11]),
 													_List_fromArray(
 														[
-															rundis$elm_bootstrap$Bootstrap$Button$small,
-															rundis$elm_bootstrap$Bootstrap$Button$outlineDanger,
-															rundis$elm_bootstrap$Bootstrap$Button$attrs(
+															elm$html$Html$text(section.title)
+														])),
+													A2(
+													rundis$elm_bootstrap$Bootstrap$Grid$col,
+													_List_fromArray(
+														[rundis$elm_bootstrap$Bootstrap$Grid$Col$md2, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1]),
+													_List_fromArray(
+														[
+															A2(
+															rundis$elm_bootstrap$Bootstrap$Button$button,
 															_List_fromArray(
-																[rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2])),
-															rundis$elm_bootstrap$Bootstrap$Button$onClick(
-															author$project$Main$RemoveSection(section.title))
-														]),
-													_List_fromArray(
-														[
-															elm$html$Html$text('Delete')
+																[
+																	rundis$elm_bootstrap$Bootstrap$Button$small,
+																	rundis$elm_bootstrap$Bootstrap$Button$outlineDanger,
+																	rundis$elm_bootstrap$Bootstrap$Button$attrs(
+																	_List_fromArray(
+																		[rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$ml2])),
+																	rundis$elm_bootstrap$Bootstrap$Button$onClick(
+																	author$project$Main$ShowModal(
+																		author$project$Main$DeleteModal(section.title)))
+																]),
+															_List_fromArray(
+																[
+																	elm$html$Html$text('Delete')
+																]))
 														]))
 												]))
 										]))
-								]))
-						]),
-					rundis$elm_bootstrap$Bootstrap$Card$config(
+								]),
+							rundis$elm_bootstrap$Bootstrap$Card$config(
+								_List_fromArray(
+									[
+										rundis$elm_bootstrap$Bootstrap$Card$attrs(
+										_List_fromArray(
+											[rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4]))
+									]))))),
+					A2(
+					rundis$elm_bootstrap$Bootstrap$Modal$view,
+					A2(
+						author$project$Main$getModalVisibility,
+						author$project$Main$DeleteModal(section.title),
+						modalKind),
+					A3(
+						rundis$elm_bootstrap$Bootstrap$Modal$footer,
+						_List_Nil,
 						_List_fromArray(
 							[
-								rundis$elm_bootstrap$Bootstrap$Card$attrs(
+								A2(
+								rundis$elm_bootstrap$Bootstrap$Button$button,
 								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mt4]))
-							])))));
+									[
+										rundis$elm_bootstrap$Bootstrap$Button$outlinePrimary,
+										rundis$elm_bootstrap$Bootstrap$Button$onClick(author$project$Main$IgnoreModal)
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('キャンセル')
+									])),
+								A2(
+								rundis$elm_bootstrap$Bootstrap$Button$button,
+								_List_fromArray(
+									[
+										rundis$elm_bootstrap$Bootstrap$Button$outlineDanger,
+										rundis$elm_bootstrap$Bootstrap$Button$onClick(
+										author$project$Main$RemoveSection(section.title))
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('削除')
+									]))
+							]),
+						A3(
+							rundis$elm_bootstrap$Bootstrap$Modal$body,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$p,
+									_List_Nil,
+									_List_fromArray(
+										[
+											elm$html$Html$text(section.title),
+											elm$html$Html$text(' セクションを削除します。')
+										]))
+								]),
+							A3(
+								rundis$elm_bootstrap$Bootstrap$Modal$h3,
+								_List_Nil,
+								_List_fromArray(
+									[
+										elm$html$Html$text('セクションの削除')
+									]),
+								A2(
+									rundis$elm_bootstrap$Bootstrap$Modal$hideOnBackdropClick,
+									true,
+									rundis$elm_bootstrap$Bootstrap$Modal$config(author$project$Main$IgnoreModal))))))
+				]));
 	});
 var elm$html$Html$h5 = _VirtualDom_node('h5');
-var elm$html$Html$p = _VirtualDom_node('p');
 var rundis$elm_bootstrap$Bootstrap$Internal$Button$Info = {$: 'Info'};
 var rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
 	return {$: 'Roled', a: a};
@@ -7334,7 +7895,10 @@ var rundis$elm_bootstrap$Bootstrap$Grid$container = F2(
 	});
 var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6 = {$: 'Col6'};
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$lg6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
+var rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col7 = {$: 'Col7'};
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$lg7 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$LG, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col7);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$md = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
+var rundis$elm_bootstrap$Bootstrap$Grid$Col$md6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$MD, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col);
 var rundis$elm_bootstrap$Bootstrap$Grid$Col$sm6 = A2(rundis$elm_bootstrap$Bootstrap$Grid$Internal$width, rundis$elm_bootstrap$Bootstrap$General$Internal$SM, rundis$elm_bootstrap$Bootstrap$Grid$Internal$Col6);
 var author$project$Main$view = function (model) {
@@ -7396,12 +7960,12 @@ var author$project$Main$view = function (model) {
 								A2(
 								rundis$elm_bootstrap$Bootstrap$Grid$col,
 								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+									[rundis$elm_bootstrap$Bootstrap$Grid$Col$md6, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg7]),
 								_List_Nil),
 								A2(
 								rundis$elm_bootstrap$Bootstrap$Grid$col,
 								_List_fromArray(
-									[rundis$elm_bootstrap$Bootstrap$Grid$Col$sm4]),
+									[rundis$elm_bootstrap$Bootstrap$Grid$Col$md2, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg1]),
 								_List_fromArray(
 									[
 										A2(
@@ -7409,24 +7973,81 @@ var author$project$Main$view = function (model) {
 										_List_fromArray(
 											[
 												rundis$elm_bootstrap$Bootstrap$Button$outlineInfo,
-												rundis$elm_bootstrap$Bootstrap$Button$onClick(author$project$Main$InitSections)
+												rundis$elm_bootstrap$Bootstrap$Button$onClick(
+												author$project$Main$ShowModal(author$project$Main$ResetModal))
 											]),
 										_List_fromArray(
 											[
-												elm$html$Html$text('リセットして初期のセクションを追加する')
+												elm$html$Html$text('リセット')
 											]))
 									]))
 							]))
 					])),
+				A2(
+				rundis$elm_bootstrap$Bootstrap$Modal$view,
+				A2(author$project$Main$getModalVisibility, author$project$Main$ResetModal, model.modalKind),
+				A3(
+					rundis$elm_bootstrap$Bootstrap$Modal$footer,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							rundis$elm_bootstrap$Bootstrap$Button$button,
+							_List_fromArray(
+								[
+									rundis$elm_bootstrap$Bootstrap$Button$outlinePrimary,
+									rundis$elm_bootstrap$Bootstrap$Button$onClick(author$project$Main$IgnoreModal)
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('キャンセル')
+								])),
+							A2(
+							rundis$elm_bootstrap$Bootstrap$Button$button,
+							_List_fromArray(
+								[
+									rundis$elm_bootstrap$Bootstrap$Button$outlineDanger,
+									rundis$elm_bootstrap$Bootstrap$Button$onClick(author$project$Main$InitSections)
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('リセット')
+								]))
+						]),
+					A3(
+						rundis$elm_bootstrap$Bootstrap$Modal$body,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								elm$html$Html$p,
+								_List_Nil,
+								_List_fromArray(
+									[
+										elm$html$Html$text('全てのセクションを削除して初期化しますか？')
+									]))
+							]),
+						A3(
+							rundis$elm_bootstrap$Bootstrap$Modal$h3,
+							_List_Nil,
+							_List_fromArray(
+								[
+									elm$html$Html$text('セクションのリセット')
+								]),
+							A2(
+								rundis$elm_bootstrap$Bootstrap$Modal$hideOnBackdropClick,
+								true,
+								rundis$elm_bootstrap$Bootstrap$Modal$config(author$project$Main$IgnoreModal)))))),
 				A2(
 				elm$html$Html$div,
 				_List_Nil,
 				A2(
 					elm$core$List$map,
 					function (x) {
-						return A2(
+						return A3(
 							author$project$Main$viewInput,
 							author$project$Main$typicalCountPerRatio(model),
+							model.modalKind,
 							x);
 					},
 					model.sections)),
@@ -7697,7 +8318,6 @@ var elm$core$String$left = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
-var elm$core$String$contains = _String_contains;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
 		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};

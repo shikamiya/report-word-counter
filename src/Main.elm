@@ -20,6 +20,7 @@ import Bootstrap.Form.Select as Select
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Radio as Radio
 import Bootstrap.Form.Textarea as Textarea
+import Bootstrap.Modal as Modal
 import Bootstrap.Form.Fieldset as Fieldset
 import Bootstrap.Button as Button
 import Bootstrap.Utilities.Spacing as Spacing
@@ -45,7 +46,7 @@ encodeSection section =
 
 decodeModel : D.Decoder (Maybe Model)
 decodeModel =
-  D.maybe (D.map2 (\typicalCount -> \sections -> { typicalCount = Just typicalCount, nextTitle = "", sections = sections })
+  D.maybe (D.map2 (\typicalCount -> \sections -> { typicalCount = Just typicalCount, nextTitle = "", modalKind = NoModal, sections = sections })
     (D.field "typicalCount" D.int)
     (D.field "sections" (D.list decodeSection)))
 
@@ -81,8 +82,14 @@ type alias Section =
 type alias Model =
   { typicalCount : Maybe Int
   , nextTitle : String
+  , modalKind : ModalKind
   , sections : List Section
   }
+
+type ModalKind
+  = NoModal
+  | ResetModal
+  | DeleteModal String
 
 init : Maybe String -> (Model, Cmd msg)
 init flags =
@@ -93,7 +100,7 @@ init flags =
       Just model ->
         (model, Cmd.none)
       _ ->
-        (Model Nothing "" [], Cmd.none)
+        (Model Nothing "" NoModal [], Cmd.none)
 
 verifyTypicalCount : Model -> Maybe Int
 verifyTypicalCount model =
@@ -116,6 +123,10 @@ typicalCountPerRatio : Model -> Float
 typicalCountPerRatio model =
   Maybe.withDefault 1.0 <| Maybe.map2 (\x -> \y -> (toFloat x) / (toFloat y)) (verifyTypicalCount model) <| sumOfRatio model
 
+getModalVisibility : ModalKind -> ModalKind -> Modal.Visibility
+getModalVisibility target current =
+  if target == current then Modal.shown else Modal.hidden
+
 -- UPDATE
 
 type Msg
@@ -126,6 +137,8 @@ type Msg
   | AddSection
   | RemoveSection String
   | InitSections
+  | ShowModal ModalKind
+  | IgnoreModal
 
 update : Msg -> Model -> (Model, Cmd msg)
 update msg model =
@@ -171,33 +184,43 @@ update msg model =
     RemoveSection title ->
       let
         sections = List.filter (\s -> s.title /= title) model.sections
+        new_model = { model | sections = sections, modalKind = NoModal }
       in
-        ({ model | sections = sections }, Cmd.none)
+        (new_model, Cmd.batch [ cache <| encodeModel new_model ])
     InitSections ->
-      ({ model | sections =
-        [
-          { title = "提示"
-          , ratio = 0
-          , content = ""
-          },
-          { title = "要約"
-          , ratio = 35
-          , content = ""
-          },
-          { title = "全体"
-          , ratio = 15
-          , content = ""
-          },
-          { title = "議論"
-          , ratio = 35
-          , content = ""
-          },
-          { title = "まとめ"
-          , ratio = 15
-          , content = ""
+      let
+        new_model =
+          { model | sections =
+            [
+              { title = "提示"
+              , ratio = 0
+              , content = ""
+              },
+              { title = "要約"
+              , ratio = 35
+              , content = ""
+              },
+              { title = "全体"
+              , ratio = 15
+              , content = ""
+              },
+              { title = "議論"
+              , ratio = 35
+              , content = ""
+              },
+              { title = "まとめ"
+              , ratio = 15
+              , content = ""
+              }
+            ]
+          , modalKind = NoModal
           }
-        ]
-      }, Cmd.none)
+      in
+        (new_model, Cmd.batch [ cache <| encodeModel new_model ])
+    ShowModal kind ->
+      ({ model | modalKind = kind }, Cmd.none)
+    IgnoreModal ->
+      ({ model | modalKind = NoModal }, Cmd.none)
       
 
 -- VIEW
@@ -213,11 +236,28 @@ view model =
               |> InputGroup.predecessors [ InputGroup.span [] [ text "総文字数" ] ]
               |> InputGroup.view
             ]
-          , Grid.col [ Col.sm4 ] []
-          , Grid.col [ Col.sm4 ] [ Button.button [ Button.outlineInfo, Button.onClick InitSections ] [ text "リセットして初期のセクションを追加する" ] ]
+          , Grid.col [ Col.md6, Col.lg7 ] []
+          , Grid.col [ Col.md2, Col.lg1 ] [ Button.button [ Button.outlineInfo, Button.onClick <| ShowModal ResetModal ] [ text "リセット" ] ]
           ]
         ]
-    , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) x) model.sections
+    , Modal.config IgnoreModal
+            |> Modal.hideOnBackdropClick True
+            |> Modal.h3 [] [ text "セクションのリセット" ]
+            |> Modal.body [] [ p [] [ text "全てのセクションを削除して初期化しますか？"] ]
+            |> Modal.footer []
+                [ Button.button
+                    [ Button.outlinePrimary
+                    , Button.onClick IgnoreModal
+                    ]
+                    [ text "キャンセル" ]
+                  , Button.button
+                    [ Button.outlineDanger
+                    , Button.onClick InitSections
+                    ]
+                    [ text "リセット" ]
+                ]
+            |> Modal.view (getModalVisibility ResetModal model.modalKind)
+    , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) model.modalKind x) model.sections
     , Grid.containerFluid [ class "mt-4" ]
       [ Grid.row []
         [ Grid.col [ Col.md, Col.lg6 ]
@@ -251,53 +291,78 @@ view model =
       ]
     ]
 
-viewInput : Float -> Section -> Html Msg
-viewInput countPerRatio section =
+viewInput : Float -> ModalKind -> Section -> Html Msg
+viewInput countPerRatio modalKind section =
   let
     contentLength = String.length section.content
   in
-    Card.config [ Card.attrs [ Spacing.mt4 ] ]
-      |> Card.header []
-        [ Grid.containerFluid []
-          [ Grid.row []
-            [ Grid.col [ Col.md10, Col.lg11 ]
-              [ text section.title
-              ]
-            , Grid.col [ Col.md2, Col.lg1 ]
-              [ Button.button [ Button.small, Button.outlineDanger, Button.attrs [ Spacing.ml2 ], Button.onClick <| RemoveSection section.title] [ text "Delete" ]
+    div []
+      [ Card.config [ Card.attrs [ Spacing.mt4 ] ]
+        |> Card.header []
+          [ Grid.containerFluid []
+            [ Grid.row []
+              [ Grid.col [ Col.md10, Col.lg11 ]
+                [ text section.title
+                ]
+              , Grid.col [ Col.md2, Col.lg1 ]
+                [ Button.button [ Button.small, Button.outlineDanger, Button.attrs [ Spacing.ml2 ], Button.onClick <| ShowModal <| DeleteModal section.title] [ text "Delete" ]
+                ]
               ]
             ]
           ]
-        ]
-      |> Card.block []
-        [
-          Block.custom <| Form.form []
-            [ Textarea.textarea [ Textarea.rows 15, Textarea.onInput <| UpdateContent section.title, Textarea.value section.content ]
-            , let
-                limit = floor <| countPerRatio * toFloat section.ratio
-                diff = contentLength - limit
-              in
-                Grid.containerFluid []
-                  [ Grid.row []
-                    [ Grid.col [ Col.sm4]
-                      [ text <| String.fromInt contentLength
-                      , text "/"
-                      , text <| String.fromInt limit
-                      , text " ("
-                      , text <| toStringWithSign diff
-                      , text ")"
-                      ]
-                    , Grid.col [ Col.sm4 ] []
-                    , Grid.col [ Col.sm4 ]
-                      [ InputGroup.config (InputGroup.number [ Input.value <| String.fromInt section.ratio, Input.onInput <| UpdateRatio section.title ])
-                        |> InputGroup.predecessors [ InputGroup.span [] [ text "割合" ] ]
-                        |> InputGroup.view
+        |> Card.block []
+          [
+            Block.custom <| Form.form []
+              [ Textarea.textarea [ Textarea.rows 15, Textarea.onInput <| UpdateContent section.title, Textarea.value section.content ]
+              , let
+                  limit = floor <| countPerRatio * toFloat section.ratio
+                  diff = contentLength - limit
+                in
+                  Grid.containerFluid []
+                    [ Grid.row []
+                      [ Grid.col [ Col.sm4]
+                        [ text <| String.fromInt contentLength
+                        , text "/"
+                        , text <| String.fromInt limit
+                        , text " ("
+                        , text <| toStringWithSign diff
+                        , text ")"
+                        ]
+                      , Grid.col [ Col.sm4 ] []
+                      , Grid.col [ Col.sm4 ]
+                        [ InputGroup.config (InputGroup.number [ Input.value <| String.fromInt section.ratio, Input.onInput <| UpdateRatio section.title ])
+                          |> InputGroup.predecessors [ InputGroup.span [] [ text "割合" ] ]
+                          |> InputGroup.view
+                        ]
                       ]
                     ]
-                  ]
+              ]
+          ]
+        |> Card.view
+      , Modal.config IgnoreModal
+          |> Modal.hideOnBackdropClick True
+          |> Modal.h3 [] [ text "セクションの削除" ]
+          |> Modal.body [] [ p []
+            [ text section.title
+            , text " セクションを削除します。"
             ]
-        ]
-      |> Card.view
+          ]
+          |> Modal.footer []
+              [ Button.button
+                  [ Button.outlinePrimary
+                  , Button.onClick IgnoreModal
+                  ]
+                  [ text "キャンセル" ]
+                , Button.button
+                  [ Button.outlineDanger
+                  , Button.onClick <| RemoveSection section.title
+                  ]
+                  [ text "削除" ]
+              ]
+          |> Modal.view (getModalVisibility (DeleteModal section.title) modalKind)
+      ]
+              
+      
 
 toStringWithSign : Int -> String
 toStringWithSign num =
