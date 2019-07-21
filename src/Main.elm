@@ -13,6 +13,7 @@ import Bootstrap.Card as Card
 import Bootstrap.Card.Block as Block
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
+import Bootstrap.Grid.Row as Row
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input
 import Bootstrap.Form.InputGroup as InputGroup
@@ -319,7 +320,7 @@ viewInput countPerRatio modalKind section =
                   diff = contentLength - limit
                 in
                   Grid.containerFluid []
-                    [ Grid.row []
+                    [ Grid.row [ Row.attrs [ class "mt-2" ] ]
                       [ Grid.col [ Col.sm4]
                         [ text <| String.fromInt contentLength
                         , text "/"
