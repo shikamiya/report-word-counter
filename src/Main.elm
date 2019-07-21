@@ -217,7 +217,7 @@ view model =
     , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) x) model.sections
     , Grid.containerFluid []
       [ Grid.row []
-        [ Grid.col [ Col.sm6 ]
+        [ Grid.col [ Col.md, Col.lg6 ]
           [ Form.formInline []
             [ InputGroup.config
               (InputGroup.text [ Input.attrs [ id "next_title" ], Input.value model.nextTitle, Input.onInput UpdateNextTitle ])
@@ -257,10 +257,10 @@ viewInput countPerRatio section =
       |> Card.header []
         [ Grid.containerFluid []
           [ Grid.row []
-            [ Grid.col [ Col.sm11 ]
+            [ Grid.col [ Col.md10, Col.lg11 ]
               [ text section.title
               ]
-            , Grid.col [ Col.sm1 ]
+            , Grid.col [ Col.md2, Col.lg1 ]
               [ Button.button [ Button.small, Button.outlineDanger, Button.attrs [ Spacing.ml2 ], Button.onClick <| RemoveSection section.title] [ text "Delete" ]
               ]
             ]
