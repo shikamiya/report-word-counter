@@ -8189,7 +8189,7 @@ var author$project$Main$view = function (model) {
 													elm$core$Maybe$withDefault,
 													0,
 													author$project$Main$sumOfRatio(model)),
-												model.typicalCount))),
+												author$project$Main$verifyTypicalCount(model)))),
 										elm$html$Html$text(')')
 									]))
 							])),
