@@ -4822,12 +4822,7 @@ var author$project$Main$decodeModel = elm$json$Json$Decode$maybe(
 		elm$json$Json$Decode$map2,
 		function (typicalCount) {
 			return function (sections) {
-				return {
-					modalKind: author$project$Main$NoModal,
-					nextTitle: '',
-					sections: sections,
-					typicalCount: elm$core$Maybe$Just(typicalCount)
-				};
+				return {modalKind: author$project$Main$NoModal, nextTitle: '', sections: sections, typicalCount: typicalCount};
 			};
 		},
 		A2(elm$json$Json$Decode$field, 'typicalCount', elm$json$Json$Decode$int),
@@ -4892,7 +4887,7 @@ var author$project$Main$init = function (flags) {
 		return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
 	} else {
 		return _Utils_Tuple2(
-			A4(author$project$Main$Model, elm$core$Maybe$Nothing, '', author$project$Main$NoModal, author$project$Main$defaultSection),
+			A4(author$project$Main$Model, 0, '', author$project$Main$NoModal, author$project$Main$defaultSection),
 			elm$core$Platform$Cmd$none);
 	}
 };
@@ -4950,8 +4945,7 @@ var author$project$Main$encodeModel = function (model) {
 			[
 				_Utils_Tuple2(
 				'typicalCount',
-				elm$json$Json$Encode$int(
-					A2(elm$core$Maybe$withDefault, 0, model.typicalCount))),
+				elm$json$Json$Encode$int(model.typicalCount)),
 				_Utils_Tuple2(
 				'sections',
 				A2(elm$json$Json$Encode$list, author$project$Main$encodeSection, model.sections))
@@ -5059,7 +5053,10 @@ var author$project$Main$update = F2(
 				var new_model = _Utils_update(
 					model,
 					{
-						typicalCount: elm$core$String$toInt(typicalCount)
+						typicalCount: A2(
+							elm$core$Maybe$withDefault,
+							0,
+							elm$core$String$toInt(typicalCount))
 					});
 				return _Utils_Tuple2(
 					new_model,
@@ -5158,7 +5155,7 @@ var author$project$Main$update = F2(
 			case 'Reset':
 				var new_model = _Utils_update(
 					model,
-					{modalKind: author$project$Main$NoModal, sections: author$project$Main$defaultSection, typicalCount: elm$core$Maybe$Nothing});
+					{modalKind: author$project$Main$NoModal, sections: author$project$Main$defaultSection, typicalCount: 0});
 				return _Utils_Tuple2(
 					new_model,
 					elm$core$Platform$Cmd$batch(
@@ -5234,8 +5231,7 @@ var author$project$Main$toStringWithSign = function (num) {
 		elm$core$String$fromInt(num)) : elm$core$String$fromInt(num);
 };
 var author$project$Main$verifyTypicalCount = function (model) {
-	var count = A2(elm$core$Maybe$withDefault, 0, model.typicalCount);
-	return (0 < count) ? elm$core$Maybe$Just(count) : elm$core$Maybe$Nothing;
+	return (0 < model.typicalCount) ? elm$core$Maybe$Just(model.typicalCount) : elm$core$Maybe$Nothing;
 };
 var elm$core$Maybe$map2 = F3(
 	function (func, ma, mb) {
@@ -7979,10 +7975,7 @@ var author$project$Main$view = function (model) {
 																	elm$html$Html$Attributes$id('typical_count')
 																])),
 															rundis$elm_bootstrap$Bootstrap$Form$Input$value(
-															A2(
-																elm$core$Maybe$withDefault,
-																'',
-																A2(elm$core$Maybe$map, elm$core$String$fromInt, model.typicalCount))),
+															elm$core$String$fromInt(model.typicalCount)),
 															rundis$elm_bootstrap$Bootstrap$Form$Input$onInput(author$project$Main$UpdateTypicalCount)
 														])))))
 									])),

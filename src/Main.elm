@@ -29,7 +29,7 @@ import Json.Encode as E
 encodeModel : Model -> E.Value
 encodeModel model =
     E.object
-        [ ( "typicalCount", E.int <| Maybe.withDefault 0 model.typicalCount )
+        [ ( "typicalCount", E.int model.typicalCount )
         , ( "sections", E.list encodeSection model.sections )
         ]
 
@@ -46,7 +46,7 @@ encodeSection section =
 decodeModel : D.Decoder (Maybe Model)
 decodeModel =
     D.maybe
-        (D.map2 (\typicalCount -> \sections -> { typicalCount = Just typicalCount, nextTitle = "", modalKind = NoModal, sections = sections })
+        (D.map2 (\typicalCount -> \sections -> { typicalCount = typicalCount, nextTitle = "", modalKind = NoModal, sections = sections })
             (D.field "typicalCount" D.int)
             (D.field "sections" (D.list decodeSection))
         )
@@ -91,7 +91,7 @@ type alias Section =
 
 
 type alias Model =
-    { typicalCount : Maybe Int
+    { typicalCount : Int
     , nextTitle : String
     , modalKind : ModalKind
     , sections : List Section
@@ -115,7 +115,7 @@ init flags =
             ( model, Cmd.none )
 
         _ ->
-            ( Model Nothing "" NoModal defaultSection, Cmd.none )
+            ( Model 0 "" NoModal defaultSection, Cmd.none )
 
 
 defaultSection : List Section
@@ -145,12 +145,8 @@ defaultSection =
 
 verifyTypicalCount : Model -> Maybe Int
 verifyTypicalCount model =
-    let
-        count =
-            Maybe.withDefault 0 model.typicalCount
-    in
-    if 0 < count then
-        Just count
+    if 0 < model.typicalCount then
+        Just model.typicalCount
 
     else
         Nothing
@@ -210,7 +206,7 @@ update msg model =
         UpdateTypicalCount typicalCount ->
             let
                 new_model =
-                    { model | typicalCount = String.toInt typicalCount }
+                    { model | typicalCount = Maybe.withDefault 0 <| String.toInt typicalCount }
             in
             ( new_model, Cmd.batch [ cache <| encodeModel new_model ] )
 
@@ -278,7 +274,7 @@ update msg model =
             let
                 new_model =
                     { model
-                        | typicalCount = Nothing
+                        | typicalCount = 0
                         , modalKind = NoModal
                         , sections = defaultSection
                     }
@@ -303,7 +299,7 @@ view model =
         , Grid.containerFluid [ class "mt-4" ]
             [ Grid.row []
                 [ Grid.col [ Col.sm4 ]
-                    [ InputGroup.config (InputGroup.number [ Input.attrs [ id "typical_count" ], Input.value <| Maybe.withDefault "" <| Maybe.map String.fromInt model.typicalCount, Input.onInput UpdateTypicalCount ])
+                    [ InputGroup.config (InputGroup.number [ Input.attrs [ id "typical_count" ], Input.value <| String.fromInt model.typicalCount, Input.onInput UpdateTypicalCount ])
                         |> InputGroup.predecessors [ InputGroup.span [] [ text "総文字数" ] ]
                         |> InputGroup.view
                     ]
