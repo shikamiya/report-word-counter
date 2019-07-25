@@ -330,18 +330,7 @@ view model =
         , div [] <| List.map (\x -> viewInput (typicalCountPerRatio model) model.modalKind x) model.sections
         , Grid.containerFluid [ class "mt-4" ]
             [ Grid.row []
-                [ Grid.col [ Col.md, Col.lg6 ]
-                    [ Form.formInline []
-                        [ InputGroup.config
-                            (InputGroup.text [ Input.attrs [ id "next_title" ], Input.value model.nextTitle, Input.onInput UpdateNextTitle ])
-                            |> InputGroup.predecessors [ InputGroup.span [] [ text "追加するセクションのタイトル" ] ]
-                            |> InputGroup.successors [ InputGroup.button [ Button.info, Button.onClick AddSection ] [ text "追加" ] ]
-                            |> InputGroup.view
-                        ]
-                    ]
-                ]
-            , Grid.row []
-                [ Grid.col [ Col.sm, Col.attrs [ class "my-2" ] ]
+                [ Grid.col [ Col.lg6, Col.attrs [ class "my-2" ] ]
                     [ text "総文字数："
                     , text <| String.fromInt <| sumOfAllConentLength model
                     , text "/"
@@ -349,6 +338,15 @@ view model =
                     , text "("
                     , text <| toStringWithSign <| sumOfAllConentLength model - (Maybe.withDefault (Maybe.withDefault 0 <| sumOfRatio model) <| verifyTypicalCount model)
                     , text ")"
+                    ]
+                , Grid.col [ Col.md, Col.lg6 ]
+                    [ Form.formInline []
+                        [ InputGroup.config
+                            (InputGroup.text [ Input.attrs [ id "next_title" ], Input.value model.nextTitle, Input.onInput UpdateNextTitle ])
+                            |> InputGroup.predecessors [ InputGroup.span [] [ text "追加するセクションのタイトル" ] ]
+                            |> InputGroup.successors [ InputGroup.button [ Button.info, Button.onClick AddSection ] [ text "追加" ] ]
+                            |> InputGroup.view
+                        ]
                     ]
                 ]
             , Grid.row []

@@ -8091,6 +8091,50 @@ var author$project$Main$view = function (model) {
 								A2(
 								rundis$elm_bootstrap$Bootstrap$Grid$col,
 								_List_fromArray(
+									[
+										rundis$elm_bootstrap$Bootstrap$Grid$Col$lg6,
+										rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('my-2')
+											]))
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('総文字数：'),
+										elm$html$Html$text(
+										elm$core$String$fromInt(
+											author$project$Main$sumOfAllConentLength(model))),
+										elm$html$Html$text('/'),
+										elm$html$Html$text(
+										A2(
+											elm$core$Maybe$withDefault,
+											A2(
+												elm$core$Maybe$withDefault,
+												'0',
+												A2(
+													elm$core$Maybe$map,
+													elm$core$String$fromInt,
+													author$project$Main$sumOfRatio(model))),
+											A2(
+												elm$core$Maybe$map,
+												elm$core$String$fromInt,
+												author$project$Main$verifyTypicalCount(model)))),
+										elm$html$Html$text('('),
+										elm$html$Html$text(
+										author$project$Main$toStringWithSign(
+											author$project$Main$sumOfAllConentLength(model) - A2(
+												elm$core$Maybe$withDefault,
+												A2(
+													elm$core$Maybe$withDefault,
+													0,
+													author$project$Main$sumOfRatio(model)),
+												author$project$Main$verifyTypicalCount(model)))),
+										elm$html$Html$text(')')
+									])),
+								A2(
+								rundis$elm_bootstrap$Bootstrap$Grid$col,
+								_List_fromArray(
 									[rundis$elm_bootstrap$Bootstrap$Grid$Col$md, rundis$elm_bootstrap$Bootstrap$Grid$Col$lg6]),
 								_List_fromArray(
 									[
@@ -8141,56 +8185,6 @@ var author$project$Main$view = function (model) {
 																		rundis$elm_bootstrap$Bootstrap$Form$Input$onInput(author$project$Main$UpdateNextTitle)
 																	]))))))
 											]))
-									]))
-							])),
-						A2(
-						rundis$elm_bootstrap$Bootstrap$Grid$row,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								rundis$elm_bootstrap$Bootstrap$Grid$col,
-								_List_fromArray(
-									[
-										rundis$elm_bootstrap$Bootstrap$Grid$Col$sm,
-										rundis$elm_bootstrap$Bootstrap$Grid$Col$attrs(
-										_List_fromArray(
-											[
-												elm$html$Html$Attributes$class('my-2')
-											]))
-									]),
-								_List_fromArray(
-									[
-										elm$html$Html$text('総文字数：'),
-										elm$html$Html$text(
-										elm$core$String$fromInt(
-											author$project$Main$sumOfAllConentLength(model))),
-										elm$html$Html$text('/'),
-										elm$html$Html$text(
-										A2(
-											elm$core$Maybe$withDefault,
-											A2(
-												elm$core$Maybe$withDefault,
-												'0',
-												A2(
-													elm$core$Maybe$map,
-													elm$core$String$fromInt,
-													author$project$Main$sumOfRatio(model))),
-											A2(
-												elm$core$Maybe$map,
-												elm$core$String$fromInt,
-												author$project$Main$verifyTypicalCount(model)))),
-										elm$html$Html$text('('),
-										elm$html$Html$text(
-										author$project$Main$toStringWithSign(
-											author$project$Main$sumOfAllConentLength(model) - A2(
-												elm$core$Maybe$withDefault,
-												A2(
-													elm$core$Maybe$withDefault,
-													0,
-													author$project$Main$sumOfRatio(model)),
-												author$project$Main$verifyTypicalCount(model)))),
-										elm$html$Html$text(')')
 									]))
 							])),
 						A2(
