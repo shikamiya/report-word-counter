@@ -237,7 +237,7 @@ update msg model =
                     String.toInt ratio_str
 
                 updateSection section =
-                    if section.title == title && ratio /= Nothing then
+                    if section.title == title then
                         { section | ratio = Maybe.withDefault 0 ratio }
 
                     else

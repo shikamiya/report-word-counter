@@ -5094,7 +5094,7 @@ var author$project$Main$update = F2(
 				var ratio_str = msg.b;
 				var ratio = elm$core$String$toInt(ratio_str);
 				var updateSection = function (section) {
-					return (_Utils_eq(section.title, title) && (!_Utils_eq(ratio, elm$core$Maybe$Nothing))) ? _Utils_update(
+					return _Utils_eq(section.title, title) ? _Utils_update(
 						section,
 						{
 							ratio: A2(elm$core$Maybe$withDefault, 0, ratio)
